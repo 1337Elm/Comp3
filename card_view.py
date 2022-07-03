@@ -1,7 +1,8 @@
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtSvg import *
-from PyQt5.QtWidgets import *
+from PyQt6.QtCore import *
+from PyQt6.QtGui import *
+from PyQt6.QtSvg import *
+from PyQt6.QtWidgets import *
+from PyQt6.QtSvgWidgets import *
 from abc import abstractmethod
 import sys
 
@@ -81,7 +82,7 @@ class TableScene(QGraphicsScene):
     """ A scene with a table cloth background """
     def __init__(self):
         super().__init__()
-        self.tile = QPixmap('cards/table.png')
+        self.tile = QPixmap('/Users/benjaminjonsson/Programmering/Comp3/cards/table.png')
         self.setBackgroundBrush(QBrush(self.tile))
 
 
@@ -103,7 +104,7 @@ def read_cards():
         for value_file, value in zip(['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'], range(2, 15)):
             file = value_file + suit_file
             key = (value, suit)  # I'm choosing this tuple to be the key for this dictionary
-            all_cards[key] = QSvgRenderer('cards/' + file + '.svg')
+            all_cards[key] = QSvgRenderer('/Users/benjaminjonsson/Programmering/Comp3/cards/' + file + '.svg')
     return all_cards
 
 
@@ -111,7 +112,7 @@ class CardView(QGraphicsView):
     """ A View widget that represents the table area displaying a players cards. """
 
     # We read all the card graphics as static class variables
-    back_card = QSvgRenderer('cards/Red_Back_2.svg')
+    back_card = QSvgRenderer('/Users/benjaminjonsson/Programmering/Comp3/cards/Red_Back_2.svg')
     all_cards = read_cards()
 
     def __init__(self, card_model: CardModel, card_spacing: int = 250, padding: int = 10):
@@ -209,4 +210,4 @@ player_view = QGroupBox("Player 1")
 player_view.setLayout(box)
 player_view.show()
 
-app.exec_()
+app.exec()
