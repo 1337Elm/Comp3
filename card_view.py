@@ -179,18 +179,18 @@ class CardView(QGraphicsView):
         super().resizeEvent(painter)
 
     # This is the Controller part of the GUI, handling input events that modify the Model
-    # def mousePressEvent(self, event):
-    #    # We can check which item, if any, that we clicked on by fetching the scene items (neat!)
-    #    pos = self.mapToScene(event.pos())
-    #    item = self.scene.itemAt(pos, self.transform())
-    #    if item is not None:
-    #        # Report back that the user clicked on the card at given position:
-    #        # The model can choose to do whatever it wants with this information.
-    #        self.model.clicked_position(item.position)
+    def mousePressEvent(self, event):
+        # We can check which item, if any, that we clicked on by fetching the scene items (neat!)
+        pos = self.mapToScene(event.pos())
+        item = self.scene.itemAt(pos, self.transform())
+        if item is not None:
+            # Report back that the user clicked on the card at given position:
+            # The model can choose to do whatever it wants with this information.
+            self.model.clicked_position(item.position)
 
     # You can remove these events if you don't need them.
-    # def mouseDoubleClickEvent(self, event):
-    #    self.model.flip() # Another possible event. Lets add it to the flip functionality for fun!
+    def mouseDoubleClickEvent(self, event):
+        self.model.flip() # Another possible event. Lets add it to the flip functionality for fun!
 
 
 ###################
