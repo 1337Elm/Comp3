@@ -80,7 +80,9 @@ class Game(object):
 
             if self.player1.Role ==  "Big blind":
                 if self.bet(self.player1,20) == True:
-                    pass
+                    self.BoardCards()
+                    for i in range(3):
+                        print(self.BoardCards[i])
                 elif self.player1.fold():
                     self.player2.Money += self.Pot
                     return self.player2
