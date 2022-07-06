@@ -3,22 +3,20 @@ from PyQt6.QtGui import *
 from PyQt6.QtSvg import *
 from PyQt6.QtWidgets import *
 from PyQt6.QtSvgWidgets import *
-from abc import abstractmethod
 import sys
+from abc import abstractmethod
 from cardlib import *
 
 class CardModel(QObject):
-    """ Base class that described what is expected from the CardView widget """
-
-    new_cards = pyqtSignal()  #: Signal should be emited when cards change.
+    new_cards = pyqtSignal()
 
     @abstractmethod
     def __iter__(self):
-        """Returns an iterator of card objects"""
+        pass
 
     @abstractmethod
     def flipped(self):
-        """Returns true of cards should be drawn face down"""
+        pass
 
 
 class HandModel(CardModel):
@@ -46,12 +44,11 @@ class HandModel(CardModel):
         self.new_cards.emit()  # something changed, better emit the signal!
 
 
-class TableScene(QGraphicsScene):
-    """ A scene with a table cloth background """
+class Table(QGraphicsScene):
     def __init__(self):
         super().__init__()
-        self.tile = QPixmap('/Users/benjaminjonsson/Programmering/Comp3/cards/table.png')
-        self.setBackgroundBrush(QBrush(self.tile))
+        self.title = QPixmap('/cards/table.png')
+        self.setBackgroundBrush(QBrush(self.title))
 
 
 class CardItem(QGraphicsSvgItem):
@@ -74,101 +71,55 @@ def read_cards():
             all_cards[key] = QSvgRenderer('/Users/benjaminjonsson/Programmering/Comp3/cards/' + file + '.svg')
     return all_cards
 
-class CardView(QGraphicsView):
-    """ A View widget that represents the table area displaying a players cards. """
 
-    # We read all the card graphics as static class variables
+class CardView(QGraphicsView):
     back_card = QSvgRenderer('/Users/benjaminjonsson/Programmering/Comp3/cards/Red_Back_2.svg')
     all_cards = read_cards()
-
+    
     def __init__(self, card_model: CardModel, card_spacing: int = 250, padding: int = 10):
-        """
-        Initializes the view to display the content of the given model
-        :param cards_model: A model that represents a set of cards. Needs to support the CardModel interface.
-        :param card_spacing: Spacing between the visualized cards.
-        :param padding: Padding of table area around the visualized cards.
-        """
-        self.scene = TableScene()
+        self.scene = Table()
         super().__init__(self.scene)
 
         self.card_spacing = card_spacing
         self.padding = padding
-
         self.model = card_model
-        # Whenever the this window should update, it should call the "change_cards" method.
-        # This can, for example, be done by connecting it to a signal.
-        # The view can listen to changes:
         card_model.new_cards.connect(self.change_cards)
-        # It is completely optional if you want to do it this way, or have some overreaching Player/GameState
-        # call the "change_cards" method instead. z
 
-        # Add the cards the first time around to represent the initial state.
         self.change_cards()
-
+    
     def change_cards(self):
-        # Add the cards from scratch
         self.scene.clear()
         for i, card in enumerate(self.model):
-            # The ID of the card in the dictionary of images is a tuple with (value, suit), both integers
             graphics_key = (card.get_value(), card.suit)
             renderer = self.back_card if self.model.flipped() else self.all_cards[graphics_key]
-            c = CardItem(renderer, i)
+            c = CardItem(renderer,i)
 
-            # Shadow effects are cool!
             shadow = QGraphicsDropShadowEffect(c)
             shadow.setBlurRadius(10.)
-            shadow.setOffset(5, 5)
-            shadow.setColor(QColor(0, 0, 0, 180))  # Semi-transparent black!
+            shadow.setOffset(5,5)
+            shadow.setColor(QColor(0,0,0,180))
             c.setGraphicsEffect(shadow)
-
-            # Place the cards on the default positions
-            c.setPos(c.position * self.card_spacing, 0)
-            # We could also do cool things like marking card by making them transparent if we wanted to!
-            # c.setOpacity(0.5 if self.model.marked(i) else 1.0)
-            self.scene.addItem(c)
-
+            c.setPos(c.position*self.card_spacing,0)
+            self.scene(c)
         self.update_view()
 
     def update_view(self):
-        scale = (self.viewport().height()-2*self.padding)/313
+        scale = (self.viewport().height() -2*self.padding)/313
         self.resetTransform()
-        self.scale(scale, scale)
-        # Put the scene bounding box
-        self.setSceneRect(-self.padding//scale, -self.padding//scale,
-                          self.viewport().width()//scale, self.viewport().height()//scale)
-
-    def resizeEvent(self, painter):
-        # This method is called when the window is resized.
-        # If the widget is resize, we gotta adjust the card sizes.
-        # QGraphicsView automatically re-paints everything when we modify the scene.
+        self.scale(scale,scale)
+        self.setSceneRect(-self.padding//scale,-self.padding//scale,
+                            self.viewport().width()//scale, self.viewport().height()//scale)
+        
+    def resizeEvene(self,painter):
         self.update_view()
         super().resizeEvent(painter)
 
-    # This is the Controller part of the GUI, handling input events that modify the Model
-    def mousePressEvent(self, event):
-        # We can check which item, if any, that we clicked on by fetching the scene items (neat!)
-        pos = self.mapToScene(event.pos())
-        item = self.scene.itemAt(pos, self.transform())
-        if item is not None:
-            # Report back that the user clicked on the card at given position:
-            # The model can choose to do whatever it wants with this information.
-            self.model.clicked_position(item.position)
-
-    # You can remove these events if you don't need them.
-    def mouseDoubleClickEvent(self, event):
-        self.model.flip() # Another possible event. Lets add it to the flip functionality for fun!
-
 
 app = QApplication(sys.argv)
-hand = HandModel()
-
-card_view = CardView(hand)
-Table_view = TableScene()
-
-# Creating a small demo window to work with, and put the card_view inside:
+card_view = CardView(CardModel)
 box = QVBoxLayout()
 box.addWidget(card_view)
-player_view = QGroupBox("Player 1")
+player_view = QGroupBox("player1")
 player_view.setLayout(box)
 player_view.show()
 
