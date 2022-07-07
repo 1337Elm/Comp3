@@ -1,5 +1,5 @@
-from numpy import True_
 from cardlib import *
+from PyQt6.QtCore import QObject, pyqtSignal
 
 class Player(object):
     """Class representing the players of the game
@@ -141,16 +141,3 @@ class Game(object):
         self.Pot = player.Money
         player.Money = 0
         return True
-
-
- 
-def main():
-    """Calls the classes and functions and methods above
-    """
-    pass
-
-
-if __name__ == '__main__':
-    """Shows that this file is runnable, runs the main method
-    """
-    main()
