@@ -112,7 +112,7 @@ class CardView(QGraphicsView):
     """ A View widget that represents the table area displaying a players cards. """
 
     # We read all the card graphics as static class variables
-    back_card = QSvgRenderer('cards/Red_Back_2.svg')
+    back_card = QSvgRenderer('/Users/benjaminjonsson/Programmering/Comp3/cards/Red_Back_2.svg')
     all_cards = read_cards()
 
     def __init__(self, card_model: CardModel, card_spacing: int = 250, padding: int = 10):
@@ -158,7 +158,7 @@ class CardView(QGraphicsView):
             # Place the cards on the default positions
             c.setPos(c.position * self.card_spacing, 0)
             # We could also do cool things like marking card by making them transparent if we wanted to!
-            # c.setOpacity(0.5 if self.model.marked(i) else 1.0)
+            #c.setOpacity(0.5 if self.model.marked(i) else 1.0)
             self.scene.addItem(c)
 
         self.update_view()
