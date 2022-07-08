@@ -1,3 +1,8 @@
+"""Logic of a game of Texas Hold 'em Poker
+
+Author: Benjamin Elm Jonsson, 2022
+"""
+
 from cardlib import *
 from PyQt6.QtCore import QObject, pyqtSignal
 

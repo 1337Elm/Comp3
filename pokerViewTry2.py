@@ -4,22 +4,25 @@ from PyQt6.QtSvg import *
 from PyQt6.QtSvgWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtSvgWidgets import *
-import sys
 import os
 from pokermodel import *
 
 class Background(QGraphicsScene):
     def __init__(self):
         super().__init__()
-        
+
         path = os.path.abspath(os.getcwd())
         self.background = QPixmap(path + '/Comp3/cards/table.png')
         self.setBackgroundBrush(QBrush(self.background))
 
 class Window(QGraphicsView):
-    def __init__(self):
+    signal = pyqtSignal()
+
+    def __init__(self,player,game):
         self.scene = Background()
         super().__init__(self.scene)
+        self.player = player
+        self.game = game
         
         self.UiInit()
         self.Buttons()
@@ -37,9 +40,11 @@ class Window(QGraphicsView):
         
         check = QPushButton("Check",self)
         check.setFixedWidth(100)
+        check.clicked.connect(self.player.check)
 
         fold = QPushButton("Fold",self)
         fold.setFixedWidth(100)
+        fold.clicked.connect(self.player.fold)
         
         bet = QPushButton("Bet",self)
         bet.setFixedWidth(100)
@@ -49,6 +54,7 @@ class Window(QGraphicsView):
         
         allIn = QPushButton("All in",self)
         allIn.setFixedWidth(100)
+        allIn.clicked.connect(lambda: self.game.Allin(self.player))
 
         self.vbox.addWidget(check)
         self.vbox.addWidget(fold)
@@ -64,13 +70,14 @@ class Window(QGraphicsView):
         file = os.path.join(path + '/Comp3/cards/Red_Back_2.svg')
 
         item = QGraphicsSvgItem(file)
-        item.setPos(-1200,500)
         self.scene.addItem(item)
-        #item.mapFromScene(-1200,500,100,100)
-        #item.mapFromItem(item,QPointF(2000,500))
-        
-        #cards = read_cards()
-        #self.scene.addItem(cards[2,0])
+        item.setPos(1200,0)
+
+        cards = read_cards()
+        self.scene.addItem(cards[2,0])
+        card = cards[14,3]
+        self.scene.addItem(card)
+        card.setPos(750,500)
 
 
     def cardsInHand(self):
@@ -89,9 +96,3 @@ def read_cards():
             key = (value, suit)  # I'm choosing this tuple to be the key for this dictionary
             all_cards[key] = QGraphicsSvgItem('/Users/benjaminjonsson/Programmering/Comp3/cards/' + file + '.svg')
     return all_cards
-
-
-
-app = QApplication(sys.argv)
-back = Window()
-sys.exit(app.exec())
