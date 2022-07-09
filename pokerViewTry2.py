@@ -46,11 +46,12 @@ class Window(QGraphicsView):
         fold.setFixedWidth(100)
         fold.clicked.connect(self.player.fold)
         
-        bet = QPushButton("Bet",self)
-        bet.setFixedWidth(100)
-
         betLine = QLineEdit(self)
         betLine.setFixedWidth(100)
+
+        bet = QPushButton("Bet",self)
+        bet.setFixedWidth(100)
+        bet.clicked.connect(lambda: self.game.bet(self.player,int(betLine.text())))
         
         allIn = QPushButton("All in",self)
         allIn.setFixedWidth(100)
@@ -61,6 +62,14 @@ class Window(QGraphicsView):
         self.vbox.addWidget(bet)
         self.vbox.addWidget(betLine)
         self.vbox.addWidget(allIn)
+
+        if self.player.Role == "Dealer":
+            Deal = QPushButton("Deal",self)
+            Deal.setFixedWidth(100)
+            Deal.clicked.connect(self.game.deal)
+            Deal.clicked.connect(self.cardsInHand)
+            self.vbox.addWidget(Deal)
+
 
 
         self.setLayout(self.vbox)
@@ -73,15 +82,25 @@ class Window(QGraphicsView):
         self.scene.addItem(item)
         item.setPos(1200,0)
 
-        cards = read_cards()
-        self.scene.addItem(cards[2,0])
-        card = cards[14,3]
-        self.scene.addItem(card)
-        card.setPos(750,500)
+        #cards = read_cards()
+        #self.scene.addItem(cards[2,0])
+        #card = cards[14,3]
+        #self.scene.addItem(card)
 
+        #card.setPos(750,500)
 
     def cardsInHand(self):
-        pass
+        self.scene.clear()
+        cards = read_cards()
+        item1 = QGraphicsSvgItem(cards[self.player.hand.cards[0].get_value(),self.player.hand.cards[0].suit.value])
+        item2 = QGraphicsSvgItem(cards[self.player.hand.cards[1].get_value(),self.player.hand.cards[1].suit.value])
+
+        item1.setSharedRenderer(item1)
+        #item1.setPos(-100,500)
+
+        self.scene.addItem(item2)
+        item2.setPos(100,500)
+        print("Cards should be seen")
 
 
 def read_cards():
@@ -94,5 +113,6 @@ def read_cards():
         for value_file, value in zip(['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'], range(2, 15)):
             file = value_file + suit_file
             key = (value, suit)  # I'm choosing this tuple to be the key for this dictionary
-            all_cards[key] = QGraphicsSvgItem('/Users/benjaminjonsson/Programmering/Comp3/cards/' + file + '.svg')
+            path = os.path.abspath(os.getcwd())
+            all_cards[key] = QGraphicsSvgItem(path + '/Comp3/cards/' + file + '.svg')
     return all_cards

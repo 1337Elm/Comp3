@@ -18,7 +18,7 @@ class Player(object):
         self.name = name
         self.hand  = Hand()
         self.Money = 500
-        self.Role = ""
+        self.Role = "Dealer"
 
     def fold(self):
         """If a player wants to fold, call this method which returns True
@@ -26,6 +26,7 @@ class Player(object):
         :param self: player object
         :type self: object
         """
+        print(f"{self.name} has folded")
         return True
 
     def check(self):
@@ -34,6 +35,7 @@ class Player(object):
         :param self: player object
         :type self: object
         """
+        print(f"{self.name} has checked")
         return True
 
 
@@ -68,14 +70,6 @@ class Game(object):
             self.player2.Role = "Dealer"
 
         while True:
-            self.deck.draw()
-            for i in range(2):
-                for j in range(2):
-                    if j == 0:
-                        self.player1.hand.add_card(self.deck.draw())
-                    elif j == 1:
-                        self.player2.hand.add_card(self.deck.draw())
-            
             if self.player1.fold() == True:
                 self.player2.Money += self.Pot
                 return self.player2
@@ -113,6 +107,18 @@ class Game(object):
             else:
                 list.append(self.deck.draw())
         return list
+    
+    def deal(self):
+        self.deck.draw()
+        for i in range(2):
+            for j in range(2):
+               if j == 0:
+                    self.player1.hand.add_card(self.deck.draw())
+               elif j == 1:
+                    self.player2.hand.add_card(self.deck.draw())
+        
+        print("Cards have been dealt")
+        return True
 
     def bet(self,player: object, ammount):
         """Method updates the pot and the players money when placing a bet
@@ -130,6 +136,7 @@ class Game(object):
         """
         player.Money = player.Money - ammount
         self.Pot += ammount
+        print(f"{player.name} has bet ${ammount}")
         return True
     
     def Allin(self,player: object):
@@ -145,4 +152,5 @@ class Game(object):
         """
         self.Pot = player.Money
         player.Money = 0
+        print(f"{player.name} has gone all in!")
         return True
