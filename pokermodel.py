@@ -42,6 +42,7 @@ class Player(object):
 class Game(object):
     """Class object representing the actual game
     """
+    signal = pyqtSignal()
     def __init__(self,player1,player2):
         """Initializing the game
         
@@ -49,6 +50,8 @@ class Game(object):
         :type self: object
         """
         self.deck =  StandardDeck()
+        self.deck.shuffle()
+
         self.player1 = player1
         self.player2 = player2
         self.Pot = 0
@@ -116,8 +119,6 @@ class Game(object):
                     self.player1.hand.add_card(self.deck.draw())
                elif j == 1:
                     self.player2.hand.add_card(self.deck.draw())
-        
-        print("Cards have been dealt")
         return True
 
     def bet(self,player: object, ammount):

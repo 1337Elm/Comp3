@@ -8,7 +8,17 @@ import os
 from pokermodel import *
 
 class Background(QGraphicsScene):
+    """The class responsible for the background of the window
+    
+    :param QGraphicsScene: The type of object
+    :type QGraphicsScene: Object
+    """
     def __init__(self):
+        """Initializing of the background
+        
+        :param self: The QGraphicsScene object
+        :type self: Object
+        """
         super().__init__()
 
         path = os.path.abspath(os.getcwd())
@@ -16,9 +26,24 @@ class Background(QGraphicsScene):
         self.setBackgroundBrush(QBrush(self.background))
 
 class Window(QGraphicsView):
+    """The class for the window of the game
+    :param QGraphicsView: The type of window
+    :type QGraphicsview: Object
+    """
     signal = pyqtSignal()
 
     def __init__(self,player,game):
+        """Initializing the window with the table background, aswell as calling the other functions
+        
+        :param self: The QGraphicsView
+        :type self: Object
+        
+        :param player: The player the instance is created for
+        :type playaer: Object
+        
+        :param game: The game instance the GUI is created for
+        :type game: Object
+        """
         self.scene = Background()
         super().__init__(self.scene)
         self.player = player
@@ -26,15 +51,24 @@ class Window(QGraphicsView):
         
         self.UiInit()
         self.Buttons()
-        self.showCards()
 
     def UiInit(self):
+        """Initializes the window with tile and sizing
+        
+        :param self: The QGraphicsView
+        :type self: object
+        """
         self.setWindowTitle("1v1 Texas Hold 'em")
         self.setGeometry(100,100,1500,1000)
 
         self.show()
     
     def Buttons(self):
+        """Creates all buttons needed for a game of poker
+        
+        :param self: The QGraphicsView
+        :type self: object
+        """
         self.vbox = QVBoxLayout()
         self.vbox.addStretch(2)
         
@@ -67,40 +101,42 @@ class Window(QGraphicsView):
             Deal = QPushButton("Deal",self)
             Deal.setFixedWidth(100)
             Deal.clicked.connect(self.game.deal)
-            Deal.clicked.connect(self.cardsInHand)
+            Deal.clicked.connect(self.showHand)
             self.vbox.addWidget(Deal)
-
-
 
         self.setLayout(self.vbox)
     
-    def showCards(self):
-        path = os.path.abspath(os.getcwd())
-        file = os.path.join(path + '/Comp3/cards/Red_Back_2.svg')
-
-        item = QGraphicsSvgItem(file)
-        self.scene.addItem(item)
-        item.setPos(1200,0)
-
-        #cards = read_cards()
-        #self.scene.addItem(cards[2,0])
-        #card = cards[14,3]
-        #self.scene.addItem(card)
-
-        #card.setPos(750,500)
-
-    def cardsInHand(self):
-        self.scene.clear()
+    def showHand(self):
         cards = read_cards()
-        item1 = QGraphicsSvgItem(cards[self.player.hand.cards[0].get_value(),self.player.hand.cards[0].suit.value])
-        item2 = QGraphicsSvgItem(cards[self.player.hand.cards[1].get_value(),self.player.hand.cards[1].suit.value])
+        for i in range(len(self.player.hand.cards)):
+            renderer = cards[self.player.hand.cards[i].get_value(),self.player.hand.cards[i].suit.value]
+            position =i
+            c = cardsInHand(renderer,position)
+            shadow = QGraphicsDropShadowEffect(c)
+            shadow.setBlurRadius(10.)
+            shadow.setOffset(5, 5)
+            shadow.setColor(QColor(0, 0, 0, 180))  # Semi-transparent black!
+            c.setGraphicsEffect(shadow)
+            c.setPos(i*250 + 1000, 500)
+            self.scene.addItem(c)
 
-        item1.setSharedRenderer(item1)
-        #item1.setPos(-100,500)
+            path = os.path.abspath(os.getcwd())
+            oppRender = QSvgRenderer(path + '/Comp3/cards/Red_Back_2.svg')
+            oppCard = cardsInHand(oppRender,position)
+            shadow = QGraphicsDropShadowEffect(c)
+            shadow.setBlurRadius(10.)
+            shadow.setOffset(5, 5)
+            shadow.setColor(QColor(0, 0, 0, 180))  # Semi-transparent black!
+            oppCard.setGraphicsEffect(shadow)
+            oppCard.setPos(i*250 + 1000,-150)
+            self.scene.addItem(oppCard)
 
-        self.scene.addItem(item2)
-        item2.setPos(100,500)
-        print("Cards should be seen")
+
+class  cardsInHand(QGraphicsSvgItem):
+    def __init__(self,renderer,position):
+        super().__init__()
+        self.setSharedRenderer(renderer)
+        self.position = position
 
 
 def read_cards():
@@ -114,5 +150,5 @@ def read_cards():
             file = value_file + suit_file
             key = (value, suit)  # I'm choosing this tuple to be the key for this dictionary
             path = os.path.abspath(os.getcwd())
-            all_cards[key] = QGraphicsSvgItem(path + '/Comp3/cards/' + file + '.svg')
+            all_cards[key] = QSvgRenderer(path + '/Comp3/cards/' + file + '.svg')
     return all_cards

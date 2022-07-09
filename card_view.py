@@ -156,7 +156,7 @@ class CardView(QGraphicsView):
             c.setGraphicsEffect(shadow)
 
             # Place the cards on the default positions
-            c.setPos(c.position * self.card_spacing, 0)
+            c.setPos(0 * self.card_spacing, 0)
             # We could also do cool things like marking card by making them transparent if we wanted to!
             #c.setOpacity(0.5 if self.model.marked(i) else 1.0)
             self.scene.addItem(c)
