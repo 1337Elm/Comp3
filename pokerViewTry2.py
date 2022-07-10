@@ -58,7 +58,7 @@ class Window(QGraphicsView):
         :param self: The QGraphicsView
         :type self: object
         """
-        self.setWindowTitle("1v1 Texas Hold 'em")
+        self.setWindowTitle(f"1v1 Texas Hold 'em, {self.player.name}")
         self.setGeometry(100,100,1500,1000)
 
         self.show()
@@ -102,6 +102,8 @@ class Window(QGraphicsView):
             Deal.setFixedWidth(100)
             Deal.clicked.connect(self.game.deal)
             Deal.clicked.connect(self.showHand)
+            Deal.clicked.connect(self.game.round)
+            Deal.clicked.connect(self.CardsOnBoard)
             self.vbox.addWidget(Deal)
 
         self.setLayout(self.vbox)
@@ -115,7 +117,7 @@ class Window(QGraphicsView):
             shadow = QGraphicsDropShadowEffect(c)
             shadow.setBlurRadius(10.)
             shadow.setOffset(5, 5)
-            shadow.setColor(QColor(0, 0, 0, 180))  # Semi-transparent black!
+            shadow.setColor(QColor(0, 0, 0, 180))
             c.setGraphicsEffect(shadow)
             c.setPos(i*250 + 1000, 500)
             self.scene.addItem(c)
@@ -126,10 +128,26 @@ class Window(QGraphicsView):
             shadow = QGraphicsDropShadowEffect(c)
             shadow.setBlurRadius(10.)
             shadow.setOffset(5, 5)
-            shadow.setColor(QColor(0, 0, 0, 180))  # Semi-transparent black!
+            shadow.setColor(QColor(0, 0, 0, 180))
             oppCard.setGraphicsEffect(shadow)
             oppCard.setPos(i*250 + 1000,-150)
             self.scene.addItem(oppCard)
+    
+    def CardsOnBoard(self):
+        cardPic = read_cards()
+        cards = self.game.BoardCards()
+
+        for i in range(len(cards)):
+            renderer = cardPic[cards[i].get_value(),cards[i].suit.value]
+            position = i
+            c = cardsInHand(renderer,position)
+            shadow = QGraphicsDropShadowEffect(c)
+            shadow.setBlurRadius(10.)
+            shadow.setOffset(5,5)
+            shadow.setColor(QColor(0,0,0,180))
+            c.setGraphicsEffect(shadow)
+            c.setPos(600+i*250,175)
+            self.scene.addItem(c)
 
 
 class  cardsInHand(QGraphicsSvgItem):
@@ -144,11 +162,11 @@ def read_cards():
     Reads all the 52 cards from files.
     :return: Dictionary of SVG renderers
     """
-    all_cards = dict()  # Dictionaries let us have convenient mappings between cards and their images
-    for suit_file, suit in zip('HDSC', range(4)):  # Check the order of the suits here!!!
+    all_cards = dict()
+    for suit_file, suit in zip('HDSC', range(4)):
         for value_file, value in zip(['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'], range(2, 15)):
             file = value_file + suit_file
-            key = (value, suit)  # I'm choosing this tuple to be the key for this dictionary
+            key = (value, suit)
             path = os.path.abspath(os.getcwd())
             all_cards[key] = QSvgRenderer(path + '/Comp3/cards/' + file + '.svg')
     return all_cards

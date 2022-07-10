@@ -18,7 +18,7 @@ class Player(object):
         self.name = name
         self.hand  = Hand()
         self.Money = 500
-        self.Role = "Dealer"
+        self.Role = ""
 
     def fold(self):
         """If a player wants to fold, call this method which returns True
@@ -56,6 +56,12 @@ class Game(object):
         self.player2 = player2
         self.Pot = 0
         self.roundCounter = 0
+        if self.roundCounter % 2 == 0:
+            self.player1.Role = "Dealer"
+            self.player2.Role = "Big blind"
+        elif self.roundCounter % 2 != 0:
+            self.player1.Role = "Big blind"
+            self.player2.Role = "Dealer"
 
     def round(self):
         """Defining a round of the game
@@ -65,35 +71,28 @@ class Game(object):
         
         returns: winner of the round
         """
-        if self.roundCounter % 2 == 0:
-            self.player1.Role = "Delar"
-            self.player2.Role = "Big blind"
-        elif self.roundCounter % 2 != 0:
-            self.player1.Role = "Big blind"
-            self.player2.Role = "Dealer"
+        #while True:
+        #    if self.player1.fold == True:
+        #        self.player2.Money += self.Pot
+        #        return self.player2
+        #    elif self.player2.fold == True:
+        #        self.player1.Money += self.Pot
+        #        return self.player1
 
-        while True:
-            if self.player1.fold() == True:
-                self.player2.Money += self.Pot
-                return self.player2
-            elif self.player2.fold() == True:
-                self.player1.Money += self.Pot
-                return self.player1
-
-            if self.player1.Role ==  "Big blind":
-                if self.bet(self.player1,20) == True:
-                    self.BoardCards()
-                    for i in range(3):
-                        print(self.BoardCards[i])
-                elif self.player1.fold():
-                    self.player2.Money += self.Pot
-                    return self.player2
-            elif self.player2.Rol == "Big blind":
-                if self.bet(self.player2,20) == True:
-                    pass
-                elif self.player2.fold():
-                    self.player1.Money += self.Pot
-                    return self.player1
+        #    if self.player1.Role ==  "Big blind":
+        #        if self.bet(self.player1,20) == True:
+        #            self.BoardCards()
+        #            for i in range(3):
+        #                print(self.BoardCards[i])
+        #        elif self.player1.fold():
+        #            self.player2.Money += self.Pot
+        #            return self.player2
+        #    elif self.player2.Role == "Big blind":
+        #        if self.bet(self.player2,20) == True:
+        #            pass
+        #        elif self.player2.fold():
+        #            self.player1.Money += self.Pot
+        #            return self.player1
       
     def BoardCards(self):
         """Returns the cards on the board for the game
