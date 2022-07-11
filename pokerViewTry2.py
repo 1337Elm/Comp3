@@ -32,7 +32,7 @@ class Window(QGraphicsView):
     """
     signal = pyqtSignal()
 
-    def __init__(self,player,game):
+    def __init__(self,player1,player2,game):
         """Initializing the window with the table background, aswell as calling the other functions
         
         :param self: The QGraphicsView
@@ -46,7 +46,8 @@ class Window(QGraphicsView):
         """
         self.scene = Background()
         super().__init__(self.scene)
-        self.player = player
+        self.player1 = player1
+        self.player2 = player2
         self.game = game
         
         self.UiInit()
@@ -58,7 +59,7 @@ class Window(QGraphicsView):
         :param self: The QGraphicsView
         :type self: object
         """
-        self.setWindowTitle(f"1v1 Texas Hold 'em, {self.player.name}")
+        self.setWindowTitle(f"1v1 Texas Hold 'em, {self.player1.name}")
         self.setGeometry(100,100,1500,1000)
 
         self.show()
@@ -74,30 +75,38 @@ class Window(QGraphicsView):
         
         check = QPushButton("Check",self)
         check.setFixedWidth(100)
-        check.clicked.connect(self.player.check)
+        check.clicked.connect(self.player1.check)
 
         fold = QPushButton("Fold",self)
         fold.setFixedWidth(100)
-        fold.clicked.connect(self.player.fold)
+        fold.clicked.connect(self.player1.fold)
+        fold.clicked.connect(self.flipCards)
         
         betLine = QLineEdit(self)
         betLine.setFixedWidth(100)
 
         bet = QPushButton("Bet",self)
         bet.setFixedWidth(100)
-        bet.clicked.connect(lambda: self.game.bet(self.player,int(betLine.text())))
+        bet.clicked.connect(lambda: self.game.bet(self.player1,int(betLine.text())))
         
         allIn = QPushButton("All in",self)
         allIn.setFixedWidth(100)
-        allIn.clicked.connect(lambda: self.game.Allin(self.player))
+        allIn.clicked.connect(lambda: self.game.Allin(self.player1))
 
+        self.label1 = QLabel(f"Money: {self.player1.Money}")
+        self.label2 = QLabel(f"Opponent Money: {self.player2.Money}")
+        self.label3 = QLabel(f"Pot: {self.game.Pot}")
+
+        self.vbox.addWidget(self.label3)
+        self.vbox.addWidget(self.label1)
+        self.vbox.addWidget(self.label2)
         self.vbox.addWidget(check)
         self.vbox.addWidget(fold)
         self.vbox.addWidget(bet)
         self.vbox.addWidget(betLine)
         self.vbox.addWidget(allIn)
 
-        if self.player.Role == "Dealer":
+        if self.player1.Role == "Dealer":
             Deal = QPushButton("Deal",self)
             Deal.setFixedWidth(100)
             Deal.clicked.connect(self.game.deal)
@@ -110,34 +119,37 @@ class Window(QGraphicsView):
     
     def showHand(self):
         cards = read_cards()
-        for i in range(len(self.player.hand.cards)):
-            renderer = cards[self.player.hand.cards[i].get_value(),self.player.hand.cards[i].suit.value]
+        list = []
+        for i in range(len(self.player1.hand.cards)):
+            renderer = cards[self.player1.hand.cards[i].get_value(),self.player1.hand.cards[i].suit.value]
             position =i
-            c = cardsInHand(renderer,position)
-            shadow = QGraphicsDropShadowEffect(c)
+            d = cardsInHand(renderer,position)
+            shadow = QGraphicsDropShadowEffect(d)
             shadow.setBlurRadius(10.)
             shadow.setOffset(5, 5)
             shadow.setColor(QColor(0, 0, 0, 180))
-            c.setGraphicsEffect(shadow)
-            c.setPos(i*250 + 1000, 500)
-            self.scene.addItem(c)
+            d.setGraphicsEffect(shadow)
+            d.setPos(i*250 + 1000, 500)
+            self.scene.addItem(d)
+            list.append(d)
 
             path = os.path.abspath(os.getcwd())
             oppRender = QSvgRenderer(path + '/Comp3/cards/Red_Back_2.svg')
             oppCard = cardsInHand(oppRender,position)
-            shadow = QGraphicsDropShadowEffect(c)
+            shadow = QGraphicsDropShadowEffect(d)
             shadow.setBlurRadius(10.)
             shadow.setOffset(5, 5)
             shadow.setColor(QColor(0, 0, 0, 180))
             oppCard.setGraphicsEffect(shadow)
             oppCard.setPos(i*250 + 1000,-150)
             self.scene.addItem(oppCard)
+        return list
     
     def CardsOnBoard(self):
         cardPic = read_cards()
         cards = self.game.BoardCards()
 
-        for i in range(len(cards)):
+        for i in range(3):
             renderer = cardPic[cards[i].get_value(),cards[i].suit.value]
             position = i
             c = cardsInHand(renderer,position)
@@ -146,7 +158,22 @@ class Window(QGraphicsView):
             shadow.setOffset(5,5)
             shadow.setColor(QColor(0,0,0,180))
             c.setGraphicsEffect(shadow)
-            c.setPos(600+i*250,175)
+            c.setPos(900+i*250,175)
+            self.scene.addItem(c)
+    
+    def flipCards(self):
+        path = os.path.abspath(os.getcwd())
+        file = os.path.join(path + '/Comp3/cards/Red_Back_2.svg')
+        for i in range(len(self.player1.hand.cards)):
+            renderer = QSvgRenderer(file)
+            position = i
+            c = cardsInHand(renderer,position)
+            shadow = QGraphicsDropShadowEffect(c)
+            shadow.setBlurRadius(10.)
+            shadow.setOffset(5, 5)
+            shadow.setColor(QColor(0, 0, 0, 180))
+            c.setGraphicsEffect(shadow)
+            c.setPos(i*250 + 1000, 500)
             self.scene.addItem(c)
 
 

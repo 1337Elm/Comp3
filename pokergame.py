@@ -8,8 +8,8 @@ def main():
     game = Game(player1,player2)
 
     app = QApplication(sys.argv)
-    back = Window(player1,game)
-    back2 = Window(player2,game)
+    back = Window(player1,player2,game)
+    #back2 = Window(player2,player1,game)
     sys.exit(app.exec())
 
 
