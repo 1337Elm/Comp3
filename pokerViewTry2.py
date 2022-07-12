@@ -82,7 +82,6 @@ class Window(QGraphicsView):
         fold = QPushButton("Fold",self)
         fold.setFixedWidth(100)
         fold.clicked.connect(self.player1.fold)
-        fold.clicked.connect(self.flipCards)
         fold.clicked.connect(lambda: self.game.roundOver(self.player2,self.player1))
         fold.clicked.connect(self.resetBoard)
         
@@ -97,8 +96,8 @@ class Window(QGraphicsView):
         allIn.setFixedWidth(100)
         allIn.clicked.connect(lambda: self.game.Allin(self.player1))
 
-        self.label1 = QLabel(f"Money: {self.player1.Money}")
-        self.label2 = QLabel(f"Opponent Money: {self.player2.Money}")
+        self.label1 = QLabel(f"{self.player1.name}'s money: {self.player1.Money}")
+        self.label2 = QLabel(f"{self.player2.name}'s money: {self.player2.Money}")
         self.label3 = QLabel(f"Pot: {self.game.Pot}")
         bet.clicked.connect(self.updateMoney)
 
@@ -128,6 +127,8 @@ class Window(QGraphicsView):
             DealRiver = QPushButton("Deal river",self)
             DealRiver.setFixedWidth(100)
             DealRiver.clicked.connect(self.River)
+            DealRiver.clicked.connect(lambda: self.game.determineWinner(self.player1,self.player2))
+            DealRiver.clicked.connect(self.showWinner)
 
             self.vbox.addWidget(Deal)
             self.vbox.addWidget(DealBoard)
@@ -143,7 +144,7 @@ class Window(QGraphicsView):
     
     def resetBoard(self):
         self.updateMoney()
-        time.sleep(3)
+        self.flipCards()
         self.scene.clear()
     
     def showHand(self):
@@ -234,6 +235,23 @@ class Window(QGraphicsView):
             c.setGraphicsEffect(shadow)
             c.setPos(i*250 + 1000, 500)
             self.scene.addItem(c)
+
+    def showWinner(self):
+        cardPic = read_cards()
+        cards = self.player2.hand.cards
+        
+        for i,card in enumerate(cards):
+            renderer = cardPic[card.get_value(),card.suit.value]
+            position = i
+            c = cardsInHand(renderer,position)
+            shadow = QGraphicsDropShadowEffect(c)
+            shadow.setBlurRadius(10.)
+            shadow.setOffset(5,5)
+            shadow.setColor(QColor(0,0,0,180))
+            c.setGraphicsEffect(shadow)
+            c.setPos(1000 + i*250,-150)
+            self.scene.addItem(c)
+
 
 
 class  cardsInHand(QGraphicsSvgItem):

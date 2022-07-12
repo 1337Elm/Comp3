@@ -67,9 +67,11 @@ class Game(object):
         if self.roundCounter % 2 == 0:
             self.player1.Role = "Dealer"
             self.player2.Role = "Big blind"
+            self.bet(self.player2,20)
         elif self.roundCounter % 2 != 0:
             self.player1.Role = "Big blind"
             self.player2.Role = "Dealer"
+            self.bet(self.player1,20)
 
     def round(self):
         """Defining a round of the game
@@ -106,9 +108,21 @@ class Game(object):
         #Retrieve cards back and award money to winner
         winner.Money += self.Pot
         self.Pot = 0
-        
+        self.player1.hand.cards.clear()
+        self.player2.hand.cards.clear()
+        self.BoardCards().clear()
+        self.deck = StandardDeck()
+    
+    def determineWinner(self,player1,player2):
+        ph1 = self.player1.hand.best_poker_hand(self.BoardCards())
+        ph2 = self.player2.hand.best_poker_hand(self.BoardCards())
 
-
+        if ph1 > ph2:
+            print(f"The winner is {self.player1.name}")
+            return self.player1
+        elif ph2 > ph1:
+            print(f"The winner is {self.player2.name}")
+            return self.player2
 
     def BoardCards(self):
         """Returns the cards on the board for the game
