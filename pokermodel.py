@@ -25,18 +25,26 @@ class Player(object):
         
         :param self: player object
         :type self: object
+
+        :return: number of times the function has been called
         """
+        i = 0
         print(f"{self.name} has folded")
-        return True
+        i += 1
+        return i
 
     def check(self):
         """If a player wants to check, call this method that then returns True
         
         :param self: player object
         :type self: object
+        
+        :return: number of times the function has been called
         """
+        i = 0
         print(f"{self.name} has checked")
-        return True
+        i += 1
+        return i
 
 
 class Game(object):
@@ -94,6 +102,14 @@ class Game(object):
         #            self.player1.Money += self.Pot
         #            return self.player1
       
+    def roundOver(self,winner,loser):
+        #Retrieve cards back and award money to winner
+        winner.Money += self.Pot
+        self.Pot = 0
+        
+
+
+
     def BoardCards(self):
         """Returns the cards on the board for the game
         
@@ -114,9 +130,9 @@ class Game(object):
         self.deck.draw()
         for i in range(2):
             for j in range(2):
-               if j == 0:
+                if j == 0:
                     self.player1.hand.add_card(self.deck.draw())
-               elif j == 1:
+                elif j == 1:
                     self.player2.hand.add_card(self.deck.draw())
         return True
 

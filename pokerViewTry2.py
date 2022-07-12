@@ -6,6 +6,7 @@ from PyQt6.QtCore import *
 from PyQt6.QtSvgWidgets import *
 import os
 from pokermodel import *
+import time
 
 class Background(QGraphicsScene):
     """The class responsible for the background of the window
@@ -24,6 +25,7 @@ class Background(QGraphicsScene):
         path = os.path.abspath(os.getcwd())
         self.background = QPixmap(path + '/Comp3/cards/table.png')
         self.setBackgroundBrush(QBrush(self.background))
+
 
 class Window(QGraphicsView):
     """The class for the window of the game
@@ -81,6 +83,8 @@ class Window(QGraphicsView):
         fold.setFixedWidth(100)
         fold.clicked.connect(self.player1.fold)
         fold.clicked.connect(self.flipCards)
+        fold.clicked.connect(lambda: self.game.roundOver(self.player2,self.player1))
+        fold.clicked.connect(self.resetBoard)
         
         betLine = QLineEdit(self)
         betLine.setFixedWidth(100)
@@ -96,6 +100,7 @@ class Window(QGraphicsView):
         self.label1 = QLabel(f"Money: {self.player1.Money}")
         self.label2 = QLabel(f"Opponent Money: {self.player2.Money}")
         self.label3 = QLabel(f"Pot: {self.game.Pot}")
+        bet.clicked.connect(self.updateMoney)
 
         self.vbox.addWidget(self.label3)
         self.vbox.addWidget(self.label1)
@@ -111,11 +116,35 @@ class Window(QGraphicsView):
             Deal.setFixedWidth(100)
             Deal.clicked.connect(self.game.deal)
             Deal.clicked.connect(self.showHand)
-            Deal.clicked.connect(self.game.round)
-            Deal.clicked.connect(self.CardsOnBoard)
+
+            DealBoard = QPushButton("Deal, 2nd",self)
+            DealBoard.setFixedWidth(100)
+            DealBoard.clicked.connect(self.CardsOnBoard)
+        
+            DealFourth = QPushButton("Deal, 3rd",self)
+            DealFourth.setFixedWidth(100)
+            DealFourth.clicked.connect(self.FourthCard)
+
+            DealRiver = QPushButton("Deal river",self)
+            DealRiver.setFixedWidth(100)
+            DealRiver.clicked.connect(self.River)
+
             self.vbox.addWidget(Deal)
+            self.vbox.addWidget(DealBoard)
+            self.vbox.addWidget(DealFourth)
+            self.vbox.addWidget(DealRiver)
 
         self.setLayout(self.vbox)
+    
+    def updateMoney(self):
+        self.label1.setText(f"Money: {self.player1.Money}")
+        self.label2.setText(f"Opponents Money: {self.player2.Money}")
+        self.label3.setText(f"Pot: {self.game.Pot}")
+    
+    def resetBoard(self):
+        self.updateMoney()
+        time.sleep(3)
+        self.scene.clear()
     
     def showHand(self):
         cards = read_cards()
@@ -160,7 +189,37 @@ class Window(QGraphicsView):
             c.setGraphicsEffect(shadow)
             c.setPos(900+i*250,175)
             self.scene.addItem(c)
+
+    def FourthCard(self):
+        cardPic = read_cards()
+        cards = self.game.BoardCards()
+
+        renderer = cardPic[cards[3].get_value(),cards[3].suit.value]
+        position = 4
+        c = cardsInHand(renderer,position)
+        shadow = QGraphicsDropShadowEffect(c)
+        shadow.setBlurRadius(10.)
+        shadow.setOffset(5,5)
+        shadow.setColor(QColor(0,0,0,180))
+        c.setGraphicsEffect(shadow)
+        c.setPos(1650,175)
+        self.scene.addItem(c)
     
+    def River(self):
+        cardPic = read_cards()
+        cards = self.game.BoardCards()
+
+        renderer = cardPic[cards[4].get_value(),cards[4].suit.value]
+        position = 5
+        c = cardsInHand(renderer,position)
+        shadow = QGraphicsDropShadowEffect(c)
+        shadow.setBlurRadius(10.)
+        shadow.setOffset(5,5)
+        shadow.setColor(QColor(0,0,0,180))
+        c.setGraphicsEffect(shadow)
+        c.setPos(1900,175)
+        self.scene.addItem(c)
+        
     def flipCards(self):
         path = os.path.abspath(os.getcwd())
         file = os.path.join(path + '/Comp3/cards/Red_Back_2.svg')
