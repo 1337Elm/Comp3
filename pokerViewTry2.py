@@ -5,18 +5,20 @@ from PyQt6.QtSvgWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtSvgWidgets import *
 import os
+
+from matplotlib.pyplot import box
 from pokermodel import *
 
-class MainWindow(QMainWindow):
+class MainWindow(QGraphicsView):
     def __init__(self):
-        super().__init__()
+        self.scene = Background()
+        super().__init__(self.scene)
 
         self.left = 500
         self.top = 200
-        self.width = 500
-        self.height = 500
+        self.width = 300
+        self.height = 200
         
-        self.CreateGraphicView()
         self.buttons()
 
         self.setWindowTitle("1v1 Texas Hold 'em")
@@ -25,7 +27,7 @@ class MainWindow(QMainWindow):
         self.show()
     
     def buttons(self):
-        self.box = QGridLayout()
+        self.box = QVBoxLayout()
         self.label1 = QLabel("Player 1 name")
         self.label2 = QLabel("Player 2 name")
 
@@ -35,29 +37,21 @@ class MainWindow(QMainWindow):
         self.submit = QPushButton("Submit names")
         self.submit.clicked.connect(self.initGames)
 
-        self.box.addWidget(self.label1,0,0)
-        self.box.addWidget(self.label2,0,1)
-        self.box.addWidget(self.name1,1,0)
-        self.box.addWidget(self.name2,1,1)
-        self.box.addWidget(self.submit,2,2)
-    
+        self.box.addWidget(self.label1)
+        self.box.addWidget(self.name1)
+
+        self.box.addWidget(self.label2)
+        self.box.addWidget(self.name2)
+        self.box.addWidget(self.submit)
+        
+        self.setLayout(self.box)
+
     def initGames(self):
         player1 = Player(self.name1.text())
         player2 = Player(self.name2.text())
         game = Game(player1,player2)
         self.close()
         Window(player1,player2,game)
-    
-    def CreateGraphicView(self):
-        path2background = os.path.abspath(os.getcwd())
-        backgroundFile = os.path.join(path2background + '/Comp3/cards/table.png')
-
-        self.scene = QGraphicsScene()
-        self.title = QPixmap(backgroundFile)
-        self.scene.setBackgroundBrush(QBrush(self.title))
-    
-        graphicView = QGraphicsView(self.scene,self)
-        graphicView.setGeometry(0,0,1000,1000)
 
 
 class Background(QGraphicsScene):
