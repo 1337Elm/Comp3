@@ -6,7 +6,59 @@ from PyQt6.QtCore import *
 from PyQt6.QtSvgWidgets import *
 import os
 from pokermodel import *
-import time
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.left = 500
+        self.top = 200
+        self.width = 500
+        self.height = 500
+        
+        self.CreateGraphicView()
+        self.buttons()
+
+        self.setWindowTitle("1v1 Texas Hold 'em")
+        self.setGeometry(self.left,self.top,self.width,self.height)
+
+        self.show
+    
+    def buttons(self):
+        self.box = QGridLayout()
+        self.label1 = QLabel("Player 1 name")
+        self.label2 = QLabel("Player 2 name")
+
+        self.name1 = QLineEdit(self)
+        self.name2 = QLineEdit(self)
+
+        self.submit = QPushButton("Submit names")
+        self.submit.clicked.connect(self.initGames)
+
+        self.box.addWidget(self.label1,0,0)
+        self.box.addWidget(self.label2,0,1)
+        self.box.addWidget(self.name1,1,0)
+        self.box.addWidget(self.name2,1,1)
+        self.box.addWidget(self.submit,2,2)
+    
+    def initGames(self):
+        player1 = Player(self.name1.text())
+        player2 = Player(self.name2.text())
+        game = Game(player1,player2)
+        self.close()
+        Window(player1,player2,game)
+    
+    def CreateGraphicView(self):
+        path2background = os.path.abspath(os.getcwd())
+        backgroundFile = os.path.join(path2background + '/Comp3/cards/table.png')
+
+        self.scene = QGraphicsScene()
+        self.title = QPixmap(backgroundFile)
+        self.scene.setBackgroundBrush(QBrush(self.title))
+    
+        graphicView = QGraphicsView(self.scene,self)
+        graphicView.setGeometry(0,0,1000,1000)
+
 
 class Background(QGraphicsScene):
     """The class responsible for the background of the window
@@ -18,7 +70,7 @@ class Background(QGraphicsScene):
         """Initializing of the background
         
         :param self: The QGraphicsScene object
-        :type self: Object
+        :type self: Objectrt5
         """
         super().__init__()
 
@@ -54,6 +106,7 @@ class Window(QGraphicsView):
         
         self.UiInit()
         self.Buttons()
+        self.OpponentButton()
 
     def UiInit(self):
         """Initializes the window with tile and sizing
@@ -61,7 +114,7 @@ class Window(QGraphicsView):
         :param self: The QGraphicsView
         :type self: object
         """
-        self.setWindowTitle(f"1v1 Texas Hold 'em, {self.player1.name}")
+        self.setWindowTitle("1v1 Texas Hold 'em")
         self.setGeometry(100,100,1500,1000)
 
         self.show()
@@ -128,6 +181,68 @@ class Window(QGraphicsView):
             DealRiver.setFixedWidth(100)
             DealRiver.clicked.connect(self.River)
             DealRiver.clicked.connect(lambda: self.game.determineWinner(self.player1,self.player2))
+            DealRiver.clicked.connect(self.showWinner)
+
+            self.vbox.addWidget(Deal)
+            self.vbox.addWidget(DealBoard)
+            self.vbox.addWidget(DealFourth)
+            self.vbox.addWidget(DealRiver)
+
+        self.setLayout(self.vbox)
+    
+    def OpponentButton(self):
+        self.vboxOpp = QVBoxLayout()
+        self.vboxOpp.addStretch(4)
+        
+        check = QPushButton("Check",self)
+        check.setFixedWidth(100)
+        check.clicked.connect(self.player2.check)
+
+        fold = QPushButton("Fold",self)
+        fold.setFixedWidth(100)
+        fold.clicked.connect(self.player2.fold)
+        fold.clicked.connect(lambda: self.game.roundOver(self.player1,self.player2))
+        fold.clicked.connect(self.resetBoard)
+        
+        betLine = QLineEdit(self)
+        betLine.setFixedWidth(100)
+
+        bet = QPushButton("Bet",self)
+        bet.setFixedWidth(100)
+        bet.clicked.connect(lambda: self.game.bet(self.player2,int(betLine.text())))
+        bet.clicked.connect(self.updateMoney)
+
+        allIn = QPushButton("All in",self)
+        allIn.setFixedWidth(100)
+        allIn.clicked.connect(lambda: self.game.Allin(self.player2))
+
+        self.vbox.addWidget(self.label3)
+        self.vbox.addWidget(self.label1)
+        self.vbox.addWidget(self.label2)
+        self.vbox.addWidget(check)
+        self.vbox.addWidget(fold)
+        self.vbox.addWidget(bet)
+        self.vbox.addWidget(betLine)
+        self.vbox.addWidget(allIn)
+
+        if self.player2.Role == "Dealer":
+            Deal = QPushButton("Deal",self)
+            Deal.setFixedWidth(100)
+            Deal.clicked.connect(self.game.deal)
+            Deal.clicked.connect(self.showHand)
+
+            DealBoard = QPushButton("Deal, 2nd",self)
+            DealBoard.setFixedWidth(100)
+            DealBoard.clicked.connect(self.CardsOnBoard)
+        
+            DealFourth = QPushButton("Deal, 3rd",self)
+            DealFourth.setFixedWidth(100)
+            DealFourth.clicked.connect(self.FourthCard)
+
+            DealRiver = QPushButton("Deal river",self)
+            DealRiver.setFixedWidth(100)
+            DealRiver.clicked.connect(self.River)
+            DealRiver.clicked.connect(lambda: self.game.determineWinner(self.player2,self.player1))
             DealRiver.clicked.connect(self.showWinner)
 
             self.vbox.addWidget(Deal)
