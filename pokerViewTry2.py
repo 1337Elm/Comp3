@@ -22,7 +22,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("1v1 Texas Hold 'em")
         self.setGeometry(self.left,self.top,self.width,self.height)
 
-        self.show
+        self.show()
     
     def buttons(self):
         self.box = QGridLayout()
