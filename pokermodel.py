@@ -114,14 +114,14 @@ class Game(object):
         self.deck = StandardDeck()
     
     def determineWinner(self,player1,player2):
-        ph1 = self.player1.hand.best_poker_hand(self.BoardCards())
-        ph2 = self.player2.hand.best_poker_hand(self.BoardCards())
+        ph1 = self.player1.hand.best_poker_hand(self.list)
+        ph2 = self.player2.hand.best_poker_hand(self.list)
 
         if ph1 > ph2:
-            print(f"The winner is {self.player1.name}")
+            print(f"The winner is {self.player1.name} with {ph1}")
             return self.player1
         elif ph2 > ph1:
-            print(f"The winner is {self.player2.name}")
+            print(f"The winner is {self.player2.name} with {ph2}")
             return self.player2
 
     def BoardCards(self):
@@ -132,13 +132,13 @@ class Game(object):
 
         :returns: list of cards
         """
-        list = []
+        self.list = []
         for i in range(8):
             if i == 0 or i == 4 or i == 6:
                 self.deck.draw()
             else:
-                list.append(self.deck.draw())
-        return list
+                self.list.append(self.deck.draw())
+        return self.list
     
     def deal(self):
         self.deck.draw()
