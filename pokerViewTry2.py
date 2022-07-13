@@ -8,7 +8,17 @@ import os
 from pokermodel import *
 
 class MainWindow(QGraphicsView):
+    """The class representing the log-in screen
+    
+    :param QGraphicsView: The type of object
+    :type QGraphicsView: object
+    """
     def __init__(self):
+        """Initiating the window with a background and set size
+        
+        :param self: The class object
+        :type self: object
+        """
         self.scene = Background()
         super().__init__(self.scene)
 
@@ -25,6 +35,11 @@ class MainWindow(QGraphicsView):
         self.show()
     
     def buttons(self):
+        """Creating the buttons in order to enter the names of the players
+        
+        :param self: The class object
+        :type self: object
+        """
         self.box = QVBoxLayout()
         self.label1 = QLabel("Player 1 name")
         self.label2 = QLabel("Player 2 name")
@@ -45,6 +60,11 @@ class MainWindow(QGraphicsView):
         self.setLayout(self.box)
 
     def initGames(self):
+        """When names are entered the players are initialized aswell as the game
+        
+        :param self: The class object
+        :type self: object
+        """
         player1 = Player(self.name1.text())
         player2 = Player(self.name2.text())
         game = Game(player1,player2)
@@ -327,31 +347,31 @@ class Window(QGraphicsView):
         c.setPos(1600,175)
         self.scene.addItem(c)
         
-    def flipCards(self):
-        cardPic = read_cards()
-        cards = self.player2.hand.cards
+#    def flipCards(self):
+#        cardPic = read_cards()
+#        cards = self.player2.hand.cards
         
-        for i,card in enumerate(cards):
-            ren = cardPic[self.player1.hand.cards[i].get_value(),self.player2.hand.cards[i].suit.value]
-            position = i
-            c1 = cardsInHand(ren,position)
-            shadow1 = QGraphicsDropShadowEffect(c1)
-            shadow1.setBlurRadius(10.)
-            shadow1.setOffset(5,5)
-            shadow1.setColor(QColor(0,0,0,180))
-            c1.setGraphicsEffect(shadow1)
-            c1.setPos(600 + 250*i,500)
-            self.scene.addItem(c1)
+#        for i,card in enumerate(cards):
+#            ren = cardPic[self.player1.hand.cards[i].get_value(),self.player2.hand.cards[i].suit.value]
+#            position = i
+#            c1 = cardsInHand(ren,position)
+#            shadow1 = QGraphicsDropShadowEffect(c1)
+#            shadow1.setBlurRadius(10.)
+#            shadow1.setOffset(5,5)
+#            shadow1.setColor(QColor(0,0,0,180))
+#            c1.setGraphicsEffect(shadow1)
+#            c1.setPos(600 + 250*i,500)
+#            self.scene.addItem(c1)
             
-            renderer = cardPic[card.get_value(),card.suit.value]
-            c = cardsInHand(renderer,position)
-            shadow = QGraphicsDropShadowEffect(c)
-            shadow.setBlurRadius(10.)
-            shadow.setOffset(5,5)
-            shadow.setColor(QColor(0,0,0,180))
-            c.setGraphicsEffect(shadow)
-            c.setPos(1300 + i*250,500)
-            self.scene.addItem(c)
+#            renderer = cardPic[card.get_value(),card.suit.value]
+#            c = cardsInHand(renderer,position)
+#            shadow = QGraphicsDropShadowEffect(c)
+#            shadow.setBlurRadius(10.)
+#            shadow.setOffset(5,5)
+#            shadow.setColor(QColor(0,0,0,180))
+#            c.setGraphicsEffect(shadow)
+#            c.setPos(1300 + i*250,500)
+#            self.scene.addItem(c)
     
     def showWinner(self):
         cardPic = read_cards()
@@ -400,11 +420,11 @@ def read_cards():
             all_cards[key] = QSvgRenderer(path + '/Comp3/cards/' + file + '.svg')
     return all_cards
 
-def mousePressEvent(self, event):
+#def mousePressEvent(self, event):
     #    # We can check which item, if any, that we clicked on by fetching the scene items (neat!)
-    pos = self.mapToScene(event.pos())
-    item = self.scene.itemAt(pos, self.transform())
-    if item is not None:
+#    pos = self.mapToScene(event.pos())
+#    item = self.scene.itemAt(pos, self.transform())
+#    if item is not None:
     #        # Report back that the user clicked on the card at given position:
     #        # The model can choose to do whatever it wants with this information.
-        self.model.clicked_position(item.position)
+#        self.model.clicked_position(item.position)
