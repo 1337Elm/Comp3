@@ -5,8 +5,6 @@ from PyQt6.QtSvgWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtSvgWidgets import *
 import os
-
-from matplotlib.pyplot import box
 from pokermodel import *
 
 class MainWindow(QGraphicsView):
