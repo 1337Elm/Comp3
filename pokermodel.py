@@ -25,7 +25,7 @@ class Game(object):
     """
     signal = pyqtSignal()
     def __init__(self,player1,player2):
-        """Initializing the game
+        """Initializing the game and assigning initial roles for the players
         
         :param self: game object
         :type self: object
@@ -42,11 +42,19 @@ class Game(object):
         if self.roundCounter % 2 == 0:
             self.player1.Role = "Dealer"
             self.player2.Role = "Big blind"
-            self.bet(self.player2,20)
         elif self.roundCounter % 2 != 0:
             self.player1.Role = "Big blind"
             self.player2.Role = "Dealer"
-            self.bet(self.player1,20)
+    
+    def turns(self):
+        """Returns whos turn it is 
+        
+        :param self: game object
+        :type self: object
+        
+        :return: int of turns that have taken place
+        """
+        return self.Turn
       
     def roundOver(self,winner,loser):
         """Resets the board aswell as cards for the next round
@@ -125,6 +133,8 @@ class Game(object):
                     self.player1.hand.add_card(self.deck.draw())
                 elif j == 1:
                     self.player2.hand.add_card(self.deck.draw())
+
+        self.Turn += 1
         return True
     
     def check(self,player):
