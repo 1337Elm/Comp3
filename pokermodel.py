@@ -2,7 +2,6 @@
 
 Author: Benjamin Elm Jonsson, 2022
 """
-
 from cardlib import *
 from PyQt6.QtCore import QObject, pyqtSignal
 
@@ -19,32 +18,6 @@ class Player(object):
         self.hand  = Hand()
         self.Money = 500
         self.Role = ""
-
-    def fold(self):
-        """If a player wants to fold, call this method which returns True
-        
-        :param self: player object
-        :type self: object
-
-        :return: number of times the function has been called
-        """
-        i = 0
-        print(f"{self.name} has folded")
-        i += 1
-        return i
-
-    def check(self):
-        """If a player wants to check, call this method that then returns True
-        
-        :param self: player object
-        :type self: object
-        
-        :return: number of times the function has been called
-        """
-        i = 0
-        print(f"{self.name} has checked")
-        i += 1
-        return i
 
 
 class Game(object):
@@ -64,6 +37,8 @@ class Game(object):
         self.player2 = player2
         self.Pot = 0
         self.roundCounter = 0
+        self.Turn = 0
+
         if self.roundCounter % 2 == 0:
             self.player1.Role = "Dealer"
             self.player2.Role = "Big blind"
@@ -72,40 +47,19 @@ class Game(object):
             self.player1.Role = "Big blind"
             self.player2.Role = "Dealer"
             self.bet(self.player1,20)
-
-    def round(self):
-        """Defining a round of the game
-        
-        :param self: game object
-        :type self: object
-        
-        returns: winner of the round
-        """
-        #while True:
-        #    if self.player1.fold == True:
-        #        self.player2.Money += self.Pot
-        #        return self.player2
-        #    elif self.player2.fold == True:
-        #        self.player1.Money += self.Pot
-        #        return self.player1
-
-        #    if self.player1.Role ==  "Big blind":
-        #        if self.bet(self.player1,20) == True:
-        #            self.BoardCards()
-        #            for i in range(3):
-        #                print(self.BoardCards[i])
-        #        elif self.player1.fold():
-        #            self.player2.Money += self.Pot
-        #            return self.player2
-        #    elif self.player2.Role == "Big blind":
-        #        if self.bet(self.player2,20) == True:
-        #            pass
-        #        elif self.player2.fold():
-        #            self.player1.Money += self.Pot
-        #            return self.player1
       
     def roundOver(self,winner,loser):
-        #Retrieve cards back and award money to winner
+        """Resets the board aswell as cards for the next round
+        
+        :param self: game object
+        :type sefl: object
+        
+        :param winner: the winning player of the round
+        :type winner: object
+        
+        :param loser: the losing player of the round
+        :type loser: object
+        """
         winner.Money += self.Pot
         self.Pot = 0
         self.player1.hand.cards.clear()
@@ -114,6 +68,19 @@ class Game(object):
         self.deck = StandardDeck()
     
     def determineWinner(self,player1,player2):
+        """Determines the winner of the two players
+        
+        :param self: the game object
+        :type self: object
+        
+        :param player1: the first instance of the player class
+        :type player1: object
+        
+        :param player2: the second instance of the player class
+        :type player2: object
+        
+        :return: the winner of the round
+        """
         ph1 = self.player1.hand.best_poker_hand(self.list)
         ph2 = self.player2.hand.best_poker_hand(self.list)
 
@@ -123,6 +90,11 @@ class Game(object):
         elif ph2 > ph1:
             print(f"The winner is {self.player2.name} with {ph2}")
             return self.player2
+        
+        if self.player1.Money == 0:
+            print(f"Game over {self.player2.name} wins!")
+        elif self.player2.Money == 0:
+            print(f"Game over {self.player1.name} wins!")
 
     def BoardCards(self):
         """Returns the cards on the board for the game
@@ -141,6 +113,11 @@ class Game(object):
         return self.list
     
     def deal(self):
+        """Deals cards to the players
+        
+        :param self: the game object
+        :type self: object
+        """
         self.deck.draw()
         for i in range(2):
             for j in range(2):
@@ -148,6 +125,18 @@ class Game(object):
                     self.player1.hand.add_card(self.deck.draw())
                 elif j == 1:
                     self.player2.hand.add_card(self.deck.draw())
+        return True
+    
+    def check(self,player):
+        """If a player wants to check, call this method that then returns True
+        
+        :param self: player object
+        :type self: object
+        
+        :return: number of times the function has been called
+        """
+        print(f"{player.name} has checked")
+        self.Turn += 1
         return True
 
     def bet(self,player: object, ammount):
@@ -167,6 +156,7 @@ class Game(object):
         player.Money = player.Money - ammount
         self.Pot += ammount
         print(f"{player.name} has bet ${ammount}")
+        self.Turn += 1
         return True
     
     def Allin(self,player: object):
@@ -183,4 +173,21 @@ class Game(object):
         self.Pot = player.Money
         player.Money = 0
         print(f"{player.name} has gone all in!")
+        self.Turn += 1
+        return True
+    
+    def fold(self,player): 
+        """If a player wants to fold, call this method which returns True
+        
+        :param self: player object
+        :type self: object
+
+        :return: number of times the function has been called
+        """
+        print(f"{player.name} has folded")
+        if player.name == self.player1.name:
+            self.player2.Money += self.Pot
+        else:
+            self.player1.Money += self.Pot
+
         return True

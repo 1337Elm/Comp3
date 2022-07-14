@@ -146,16 +146,19 @@ class Window(QGraphicsView):
             self.Deal1.setFixedWidth(100)
             self.Deal1.clicked.connect(self.game.deal)
             self.Deal1.clicked.connect(self.showHand)
+        else:
+            self.OpponentButton()
         
         self.check1 = QPushButton("Check",self)
         self.check1.setFixedWidth(100)
-        self.check1.clicked.connect(self.player1.check)
+        self.check1.clicked.connect(lambda: self.game.check(self.player1))
         self.check1.clicked.connect(lambda: self.switchTurn(self.player1))
 
         self.fold1 = QPushButton("Fold",self)
         self.fold1.setFixedWidth(100)
-        self.fold1.clicked.connect(self.player1.fold)
+        self.fold1.clicked.connect(lambda: self.game.fold(self.player1))
         self.fold1.clicked.connect(lambda: self.game.roundOver(self.player2,self.player1))
+        self.fold1.clicked.connect(self.updateMoney)
         self.fold1.clicked.connect(self.resetBoard)
         
         self.betLine = QLineEdit(self)
@@ -169,6 +172,7 @@ class Window(QGraphicsView):
         self.allIn = QPushButton("All in",self)
         self.allIn.setFixedWidth(100)
         self.allIn.clicked.connect(lambda: self.game.Allin(self.player1))
+        self.allIn.clicked.connect(self.updateMoney)
         self.allIn.clicked.connect(lambda: self.switchTurn(self.player1))
 
         self.label1 = QLabel(f"{self.player1.name}'s money: {self.player1.Money}")
@@ -186,13 +190,15 @@ class Window(QGraphicsView):
     def OpponentButton(self):
         self.check2 = QPushButton("Check",self)
         self.check2.setFixedWidth(100)
-        self.check2.clicked.connect(self.player2.check)
+        self.check2.clicked.connect(lambda: self.game.check(self.player1))
         self.check2.clicked.connect(self.CardsOnBoard)
+        self.check2.clicked.connect(lambda: self.switchTurn(self.player2))
 
         self.fold2 = QPushButton("Fold",self)
         self.fold2.setFixedWidth(100)
-        self.fold2.clicked.connect(self.player2.fold)
+        self.fold2.clicked.connect(lambda: self.game.fold(self.player2))
         self.fold2.clicked.connect(lambda: self.game.roundOver(self.player1,self.player2))
+        self.fold2.clicked.connect(self.updateMoney)
         self.fold2.clicked.connect(self.resetBoard)
         
         self.betLine2 = QLineEdit(self)
@@ -207,6 +213,7 @@ class Window(QGraphicsView):
         self.allIn2 = QPushButton("All in",self)
         self.allIn2.setFixedWidth(100)
         self.allIn2.clicked.connect(lambda: self.game.Allin(self.player2))
+        self.allIn2.clicked.connect(self.updateMoney)
         self.allIn2.clicked.connect(lambda: self.switchTurn(self.player2))
 
         if self.player2.Role == "Dealer":
@@ -234,18 +241,19 @@ class Window(QGraphicsView):
             self.vbox.addWidget(self.bet2)
             self.vbox.addWidget(self.betLine2)
             self.vbox.addWidget(self.allIn2)
-        else:
-            self.vbox.removeWidget(self.check2)
-            self.vbox.removeWidget(self.fold2)
-            self.vbox.removeWidget(self.bet2)
-            self.vbox.removeWidget(self.betLine2)
-            self.vbox.removeWidget(self.allIn2)
 
+        elif player.name == self.player2.name:
             self.vbox.addWidget(self.check1)
             self.vbox.addWidget(self.fold1)
             self.vbox.addWidget(self.bet)
             self.vbox.addWidget(self.betLine)
             self.vbox.addWidget(self.allIn)
+
+            self.vbox.removeWidget(self.check2)
+            self.vbox.removeWidget(self.fold2)
+            self.vbox.removeWidget(self.bet2)
+            self.vbox.removeWidget(self.betLine2)
+            self.vbox.removeWidget(self.allIn2)
     
     def updateMoney(self):
         self.label1.setText(f"Money: {self.player1.Money}")
@@ -304,9 +312,6 @@ class Window(QGraphicsView):
             c.setGraphicsEffect(shadow)
             c.setPos(600+i*250,175)
             self.scene.addItem(c)
-        
-        self.check2.clicked.disconnect(self.CardsOnBoard)
-        self.check2.clicked.connect(lambda: self.switchTurn(self.player2))
 
     def FourthCard(self):
         cardPic = read_cards()
@@ -335,32 +340,6 @@ class Window(QGraphicsView):
         c.setGraphicsEffect(shadow)
         c.setPos(1600,175)
         self.scene.addItem(c)
-        
-#    def flipCards(self):
-#        cardPic = read_cards()
-#        cards = self.player2.hand.cards
-        
-#        for i,card in enumerate(cards):
-#            ren = cardPic[self.player1.hand.cards[i].get_value(),self.player2.hand.cards[i].suit.value]
-#            position = i
-#            c1 = cardsInHand(ren,position)
-#            shadow1 = QGraphicsDropShadowEffect(c1)
-#            shadow1.setBlurRadius(10.)
-#            shadow1.setOffset(5,5)
-#            shadow1.setColor(QColor(0,0,0,180))
-#            c1.setGraphicsEffect(shadow1)
-#            c1.setPos(600 + 250*i,500)
-#            self.scene.addItem(c1)
-            
-#            renderer = cardPic[card.get_value(),card.suit.value]
-#            c = cardsInHand(renderer,position)
-#            shadow = QGraphicsDropShadowEffect(c)
-#            shadow.setBlurRadius(10.)
-#            shadow.setOffset(5,5)
-#            shadow.setColor(QColor(0,0,0,180))
-#            c.setGraphicsEffect(shadow)
-#            c.setPos(1300 + i*250,500)
-#            self.scene.addItem(c)
     
     def showWinner(self):
         cardPic = read_cards()
