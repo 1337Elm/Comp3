@@ -7,6 +7,25 @@ from PyQt6.QtSvgWidgets import *
 import os
 from pokermodel import *
 
+class Background(QGraphicsScene):
+    """The class responsible for the background of the window
+    
+    :param QGraphicsScene: The type of object
+    :type QGraphicsScene: Object
+    """
+    def __init__(self):
+        """Initializing of the background
+        
+        :param self: The QGraphicsScene object
+        :type self: Objectrt5
+        """
+        super().__init__()
+
+        path = os.path.abspath(os.getcwd())
+        self.background = QPixmap(path + '/Comp3/cards/table.png')
+        self.setBackgroundBrush(QBrush(self.background))
+
+
 class MainWindow(QGraphicsView):
     """The class representing the log-in screen
     
@@ -72,25 +91,6 @@ class MainWindow(QGraphicsView):
         Window(player1,player2,game)
 
 
-class Background(QGraphicsScene):
-    """The class responsible for the background of the window
-    
-    :param QGraphicsScene: The type of object
-    :type QGraphicsScene: Object
-    """
-    def __init__(self):
-        """Initializing of the background
-        
-        :param self: The QGraphicsScene object
-        :type self: Objectrt5
-        """
-        super().__init__()
-
-        path = os.path.abspath(os.getcwd())
-        self.background = QPixmap(path + '/Comp3/cards/table.png')
-        self.setBackgroundBrush(QBrush(self.background))
-
-
 class Window(QGraphicsView):
     """The class for the window of the game
     :param QGraphicsView: The type of window
@@ -118,7 +118,6 @@ class Window(QGraphicsView):
         
         self.UiInit()
         self.Buttons()
-        self.OpponentButton()
 
         self.boardCards = self.game.BoardCards()
 
@@ -141,103 +140,74 @@ class Window(QGraphicsView):
         """
         self.vbox = QVBoxLayout()
         self.vbox.addStretch(2)
-        
-        check = QPushButton("Check",self)
-        check.setFixedWidth(100)
-        check.clicked.connect(self.player1.check)
 
-        fold = QPushButton("Fold",self)
-        fold.setFixedWidth(100)
-        fold.clicked.connect(self.player1.fold)
-        fold.clicked.connect(lambda: self.game.roundOver(self.player2,self.player1))
-        fold.clicked.connect(self.resetBoard)
+        if self.player1.Role == "Dealer":
+            self.Deal1 = QPushButton("Deal",self)
+            self.Deal1.setFixedWidth(100)
+            self.Deal1.clicked.connect(self.game.deal)
+            self.Deal1.clicked.connect(self.showHand)
         
-        betLine = QLineEdit(self)
-        betLine.setFixedWidth(100)
+        self.check1 = QPushButton("Check",self)
+        self.check1.setFixedWidth(100)
+        self.check1.clicked.connect(self.player1.check)
+        self.check1.clicked.connect(lambda: self.switchTurn(self.player1))
 
-        bet = QPushButton("Bet",self)
-        bet.setFixedWidth(100)
-        bet.clicked.connect(lambda: self.game.bet(self.player1,int(betLine.text())))
+        self.fold1 = QPushButton("Fold",self)
+        self.fold1.setFixedWidth(100)
+        self.fold1.clicked.connect(self.player1.fold)
+        self.fold1.clicked.connect(lambda: self.game.roundOver(self.player2,self.player1))
+        self.fold1.clicked.connect(self.resetBoard)
         
-        allIn = QPushButton("All in",self)
-        allIn.setFixedWidth(100)
-        allIn.clicked.connect(lambda: self.game.Allin(self.player1))
+        self.betLine = QLineEdit(self)
+        self.betLine.setFixedWidth(100)
+
+        self.bet = QPushButton("Bet",self)
+        self.bet.setFixedWidth(100)
+        self.bet.clicked.connect(lambda: self.game.bet(self.player1,int(self.betLine.text())))
+        self.bet.clicked.connect(lambda: self.switchTurn(self.player1))
+
+        self.allIn = QPushButton("All in",self)
+        self.allIn.setFixedWidth(100)
+        self.allIn.clicked.connect(lambda: self.game.Allin(self.player1))
+        self.allIn.clicked.connect(lambda: self.switchTurn(self.player1))
 
         self.label1 = QLabel(f"{self.player1.name}'s money: {self.player1.Money}")
         self.label2 = QLabel(f"{self.player2.name}'s money: {self.player2.Money}")
         self.label3 = QLabel(f"Pot: {self.game.Pot}")
-        bet.clicked.connect(self.updateMoney)
+        self.bet.clicked.connect(self.updateMoney)
 
         self.vbox.addWidget(self.label3)
         self.vbox.addWidget(self.label1)
         self.vbox.addWidget(self.label2)
-        self.vbox.addWidget(check)
-        self.vbox.addWidget(fold)
-        self.vbox.addWidget(bet)
-        self.vbox.addWidget(betLine)
-        self.vbox.addWidget(allIn)
-
-        if self.player1.Role == "Dealer":
-            Deal = QPushButton("Deal",self)
-            Deal.setFixedWidth(100)
-            Deal.clicked.connect(self.game.deal)
-            Deal.clicked.connect(self.showHand)
-
-            DealBoard = QPushButton("Deal, 2nd",self)
-            DealBoard.setFixedWidth(100)
-            DealBoard.clicked.connect(self.CardsOnBoard)
-        
-            DealFourth = QPushButton("Deal, 3rd",self)
-            DealFourth.setFixedWidth(100)
-            DealFourth.clicked.connect(self.FourthCard)
-
-            DealRiver = QPushButton("Deal river",self)
-            DealRiver.setFixedWidth(100)
-            DealRiver.clicked.connect(self.River)
-            DealRiver.clicked.connect(lambda: self.game.determineWinner(self.player1,self.player2))
-            DealRiver.clicked.connect(self.showWinner)
-
-            self.vbox.addWidget(Deal)
-            self.vbox.addWidget(DealBoard)
-            self.vbox.addWidget(DealFourth)
-            self.vbox.addWidget(DealRiver)
+        self.vbox.addWidget(self.Deal1)
 
         self.setLayout(self.vbox)
     
     def OpponentButton(self):
-        self.vboxOpp = QVBoxLayout()
-        self.vboxOpp.addStretch(4)
+        self.check2 = QPushButton("Check",self)
+        self.check2.setFixedWidth(100)
+        self.check2.clicked.connect(self.player2.check)
+        self.check2.clicked.connect(self.CardsOnBoard)
+
+        self.fold2 = QPushButton("Fold",self)
+        self.fold2.setFixedWidth(100)
+        self.fold2.clicked.connect(self.player2.fold)
+        self.fold2.clicked.connect(lambda: self.game.roundOver(self.player1,self.player2))
+        self.fold2.clicked.connect(self.resetBoard)
         
-        check = QPushButton("Check",self)
-        check.setFixedWidth(100)
-        check.clicked.connect(self.player2.check)
+        self.betLine2 = QLineEdit(self)
+        self.betLine2.setFixedWidth(100)
 
-        fold = QPushButton("Fold",self)
-        fold.setFixedWidth(100)
-        fold.clicked.connect(self.player2.fold)
-        fold.clicked.connect(lambda: self.game.roundOver(self.player1,self.player2))
-        fold.clicked.connect(self.resetBoard)
-        
-        betLine = QLineEdit(self)
-        betLine.setFixedWidth(100)
+        self.bet2 = QPushButton("Bet",self)
+        self.bet2.setFixedWidth(100)
+        self.bet2.clicked.connect(lambda: self.game.bet(self.player2,int(self.betLine2.text())))
+        self.bet2.clicked.connect(self.updateMoney)
+        self.bet2.clicked.connect(lambda: self.switchTurn(self.player2))
 
-        bet = QPushButton("Bet",self)
-        bet.setFixedWidth(100)
-        bet.clicked.connect(lambda: self.game.bet(self.player2,int(betLine.text())))
-        bet.clicked.connect(self.updateMoney)
-
-        allIn = QPushButton("All in",self)
-        allIn.setFixedWidth(100)
-        allIn.clicked.connect(lambda: self.game.Allin(self.player2))
-
-        self.vbox.addWidget(self.label3)
-        self.vbox.addWidget(self.label1)
-        self.vbox.addWidget(self.label2)
-        self.vbox.addWidget(check)
-        self.vbox.addWidget(fold)
-        self.vbox.addWidget(bet)
-        self.vbox.addWidget(betLine)
-        self.vbox.addWidget(allIn)
+        self.allIn2 = QPushButton("All in",self)
+        self.allIn2.setFixedWidth(100)
+        self.allIn2.clicked.connect(lambda: self.game.Allin(self.player2))
+        self.allIn2.clicked.connect(lambda: self.switchTurn(self.player2))
 
         if self.player2.Role == "Dealer":
             Deal = QPushButton("Deal",self)
@@ -245,26 +215,37 @@ class Window(QGraphicsView):
             Deal.clicked.connect(self.game.deal)
             Deal.clicked.connect(self.showHand)
 
-            DealBoard = QPushButton("Deal, 2nd",self)
-            DealBoard.setFixedWidth(100)
-            DealBoard.clicked.connect(self.CardsOnBoard)
-        
-            DealFourth = QPushButton("Deal, 3rd",self)
-            DealFourth.setFixedWidth(100)
-            DealFourth.clicked.connect(self.FourthCard)
-
-            DealRiver = QPushButton("Deal river",self)
-            DealRiver.setFixedWidth(100)
-            DealRiver.clicked.connect(self.River)
-            DealRiver.clicked.connect(lambda: self.game.determineWinner(self.player2,self.player1))
-            DealRiver.clicked.connect(self.showWinner)
-
             self.vbox.addWidget(Deal)
-            self.vbox.addWidget(DealBoard)
-            self.vbox.addWidget(DealFourth)
-            self.vbox.addWidget(DealRiver)
+    
+    def checkBetAmmounts(self,ammount1,ammount2):
+        pass
+    
+    def switchTurn(self,player):
+        if player.name == self.player1.name:
+            self.vbox.removeWidget(self.check1)
+            self.vbox.removeWidget(self.fold1)
+            self.vbox.removeWidget(self.bet)
+            self.vbox.removeWidget(self.betLine)
+            self.vbox.removeWidget(self.allIn)
 
-        self.setLayout(self.vbox)
+            self.OpponentButton()
+            self.vbox.addWidget(self.check2)
+            self.vbox.addWidget(self.fold2)
+            self.vbox.addWidget(self.bet2)
+            self.vbox.addWidget(self.betLine2)
+            self.vbox.addWidget(self.allIn2)
+        else:
+            self.vbox.removeWidget(self.check2)
+            self.vbox.removeWidget(self.fold2)
+            self.vbox.removeWidget(self.bet2)
+            self.vbox.removeWidget(self.betLine2)
+            self.vbox.removeWidget(self.allIn2)
+
+            self.vbox.addWidget(self.check1)
+            self.vbox.addWidget(self.fold1)
+            self.vbox.addWidget(self.bet)
+            self.vbox.addWidget(self.betLine)
+            self.vbox.addWidget(self.allIn)
     
     def updateMoney(self):
         self.label1.setText(f"Money: {self.player1.Money}")
@@ -273,7 +254,6 @@ class Window(QGraphicsView):
     
     def resetBoard(self):
         self.updateMoney()
-        self.flipCards()
         self.scene.clear()
     
     def showHand(self):
@@ -302,6 +282,12 @@ class Window(QGraphicsView):
             oppCard.setGraphicsEffect(shadow)
             oppCard.setPos(i*250 + 1300,500)
             self.scene.addItem(oppCard)
+        
+        self.vbox.removeWidget(self.Deal1)
+        self.vbox.addWidget(self.fold1)
+        self.vbox.addWidget(self.bet)
+        self.vbox.addWidget(self.betLine)
+        self.vbox.addWidget(self.allIn)
         return list
     
     def CardsOnBoard(self):
@@ -318,6 +304,9 @@ class Window(QGraphicsView):
             c.setGraphicsEffect(shadow)
             c.setPos(600+i*250,175)
             self.scene.addItem(c)
+        
+        self.check2.clicked.disconnect(self.CardsOnBoard)
+        self.check2.clicked.connect(lambda: self.switchTurn(self.player2))
 
     def FourthCard(self):
         cardPic = read_cards()
@@ -406,6 +395,7 @@ class  cardsInHand(QGraphicsSvgItem):
         self.setSharedRenderer(renderer)
         self.position = position
 
+
 def read_cards():
     """
     Reads all the 52 cards from files.
@@ -419,12 +409,3 @@ def read_cards():
             path = os.path.abspath(os.getcwd())
             all_cards[key] = QSvgRenderer(path + '/Comp3/cards/' + file + '.svg')
     return all_cards
-
-#def mousePressEvent(self, event):
-    #    # We can check which item, if any, that we clicked on by fetching the scene items (neat!)
-#    pos = self.mapToScene(event.pos())
-#    item = self.scene.itemAt(pos, self.transform())
-#    if item is not None:
-    #        # Report back that the user clicked on the card at given position:
-    #        # The model can choose to do whatever it wants with this information.
-#        self.model.clicked_position(item.position)
