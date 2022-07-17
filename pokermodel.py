@@ -18,6 +18,8 @@ class Player(object):
         self.hand  = Hand()
         self.Money = 500
         self.Role = ""
+        self.LastBet = 0
+        self.CheckedCards = 0
 
 
 class Game(object):
@@ -149,7 +151,7 @@ class Game(object):
         self.Turn += 1
         return True
 
-    def bet(self,player: object, ammount):
+    def bet(self,player: object,OtherPlayer: object, ammount):
         """Method updates the pot and the players money when placing a bet
         
         :param self: game object
@@ -163,11 +165,16 @@ class Game(object):
 
         :return: True
         """
-        player.Money = player.Money - ammount
-        self.Pot += ammount
-        print(f"{player.name} has bet ${ammount}")
-        self.Turn += 1
-        return True
+        if ammount >= OtherPlayer.LastBet:
+            player.Money = player.Money - ammount
+            player.LastBet += ammount
+            self.Pot += ammount
+            print(f"{player.name} has bet ${ammount}")
+            self.Turn += 1
+            return True
+        else:
+            print("You need to bet a larger ammount!")
+            return False
     
     def Allin(self,player: object):
         """Updates the pot and players money when doing an all in
