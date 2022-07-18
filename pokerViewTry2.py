@@ -87,6 +87,7 @@ class MainWindow(QGraphicsView):
         player1 = Player(self.name1.text())
         player2 = Player(self.name2.text())
         game = Game(player1,player2)
+
         Window(player1,player2,game)
         self.close()
 
@@ -244,13 +245,18 @@ class Window(QGraphicsView):
                 self.Check = QPushButton("Check",self)
                 self.Check.setFixedWidth(200)
                 self.Check.clicked.connect(lambda: self.game.check(player))
-                self.Check.clicked.connect(self.updateMoney)   
-                self.Check.clicked.connect(self.FourthCard)
+                self.Check.clicked.connect(self.updateMoney)
                 self.Check.clicked.connect(lambda: self.OpponentButtons(self.action.append("Check"),player,OtherPlayer))
                 if self.game.turns() == 6:
                     self.Check.clicked.connect(self.FourthCard)
                 elif self.game.turns() == 8:
                     self.Check.clicked.connect(self.River)
+                elif self.game.turns() == 10:
+                    self.Check.clicked.connect(self.showWinner)
+                    self.Check.clicked.connect(lambda: self.game.determineWinner(self.player1,self.player2))
+                else:
+                    self.Check.clicked.connect(self.CardsOnBoard)
+                    self.Check.clicked.connect(lambda: self.OpponentButtons(self.action.append("Check"),player,OtherPlayer))
 
                 self.Fold = QPushButton("Fold",self)
                 self.Fold.setFixedWidth(200)
@@ -266,14 +272,12 @@ class Window(QGraphicsView):
                 self.bet.setFixedWidth(200)
                 self.bet.clicked.connect(lambda: self.game.bet(player,int(self.betLine.text())))
                 self.bet.clicked.connect(self.updateMoney)
-                self.bet.clicked.connect(self.FourthCard)
                 self.bet.clicked.connect(lambda: self.OpponentButtons(self.action.append("Bet"),player,OtherPlayer))
 
                 self.allIn = QPushButton("All in",self)
                 self.allIn.setFixedWidth(200)
                 self.allIn.clicked.connect(lambda: self.game.Allin(player))
                 self.allIn.clicked.connect(self.updateMoney)
-                self.allIn.clicked.connect(self.FourthCard)
                 self.allIn.clicked.connect(lambda: self.OpponentButtons(self.action.append("All in"),player,OtherPlayer))
                 
                 self.vbox.addWidget(self.See)
@@ -286,6 +290,8 @@ class Window(QGraphicsView):
             elif self.action[-1] == "Call":
                 self.vbox.removeWidget(self.See)
                 self.See.deleteLater()
+                self.vbox.removeWidget(self.Call)
+                self.Call.deleteLater()
                 self.vbox.removeWidget(self.Fold)
                 self.Fold.deleteLater()
                 self.vbox.removeWidget(self.bet)
@@ -299,17 +305,21 @@ class Window(QGraphicsView):
                 self.See.setFixedWidth(200)
                 self.See.clicked.connect(lambda: self.seeCards(player))
 
-                self.Deal1 = QPushButton("Call",self)
+                self.Deal1 = QPushButton("Deal",self)
                 self.Deal1.setFixedWidth(200)
-                self.Deal1.clicked.connect(lambda: self.game.bet(player,OtherPlayer,OtherPlayer.LastBet))
                 if self.game.turns() == 6:
                     self.Deal1.clicked.connect(self.FourthCard)
+                    self.Deal1.clicked.connect(lambda: self.OpponentButtons(self.action.append("Deal"),player,OtherPlayer))
                 elif self.game.turns() == 8:
                     self.Deal1.clicked.connect(self.River)
-                
-                self.Deal1.clicked.connect(self.updateMoney)
-                self.Deal1.clicked.connect(lambda: self.OpponentButtons(self.action.append("Call"),player,OtherPlayer))
-
+                    self.Deal1.clicked.connect(lambda: self.OpponentButtons(self.action.append("Deal"),player,OtherPlayer))
+                elif self.game.turns() == 10:
+                    self.Deal1.clicked.connect(self.showWinner)
+                    self.Deal1.clicked.connect(lambda: self.game.determineWinner(self.player1,self.player2))
+                else:
+                    self.Deal1.clicked.connect(self.CardsOnBoard)
+                    self.Deal1.clicked.connect(lambda: self.OpponentButtons(self.action.append("Deal"),player,OtherPlayer))
+                    
                 self.Fold = QPushButton("Fold",self)
                 self.Fold.setFixedWidth(200)
                 self.Fold.clicked.connect(lambda: self.game.fold(player))
@@ -333,7 +343,7 @@ class Window(QGraphicsView):
                 self.allIn.clicked.connect(lambda: self.OpponentButtons(self.action.append("All in"),player,OtherPlayer))
                 
                 self.vbox.addWidget(self.See)
-                self.vbox.addWidget(self.Call)
+                self.vbox.addWidget(self.Deal1)
                 self.vbox.addWidget(self.Fold)
                 self.vbox.addWidget(self.bet)
                 self.vbox.addWidget(self.betLine)
@@ -536,7 +546,7 @@ class Window(QGraphicsView):
 
                 self.Call = QPushButton("Call",self)
                 self.Call.setFixedWidth(200)
-                self.Call.clicked.connect(lambda: self.game.bet(OtherPlayer,player,player.LastBet) == True)
+                self.Call.clicked.connect(lambda: self.game.bet(OtherPlayer,player,player.LastBet))
                 self.Call.clicked.connect(self.updateMoney)
                 self.Call.clicked.connect(lambda: self.Buttons(self.action.append("Call"),player,OtherPlayer))
 
@@ -607,6 +617,112 @@ class Window(QGraphicsView):
                 self.vbox.addWidget(self.See)
                 self.vbox.addWidget(self.Call)
                 self.vbox.addWidget(self.Fold)
+
+            if self.action[-1] == "Check":
+                self.vbox.removeWidget(self.Check)
+                self.Check.deleteLater()
+                self.vbox.removeWidget(self.See)
+                self.See.deleteLater()
+                self.vbox.removeWidget(self.Fold)
+                self.Fold.deleteLater()
+                self.vbox.removeWidget(self.bet)
+                self.vbox.removeWidget(self.betLine)
+                self.bet.deleteLater()
+                self.betLine.deleteLater()
+                self.vbox.removeWidget(self.allIn)
+                self.allIn.deleteLater()
+
+                self.See = QPushButton("Look at your cards",self)
+                self.See.setFixedWidth(200)
+                self.See.clicked.connect(lambda: self.seeCards(OtherPlayer))
+    
+                self.Check = QPushButton("Check",self)
+                self.Check.setFixedWidth(200)
+                self.Check.clicked.connect(lambda: self.game.check(OtherPlayer))
+                self.Check.clicked.connect(self.updateMoney)
+                self.Check.clicked.connect(lambda: self.Buttons(self.action.append("Check"),player,OtherPlayer))
+
+                self.Fold = QPushButton("Fold",self)
+                self.Fold.setFixedWidth(200)
+                self.Fold.clicked.connect(lambda: self.game.fold(OtherPlayer))
+                self.Fold.clicked.connect(lambda: self.game.roundOver(player,OtherPlayer))
+                self.Fold.clicked.connect(self.resetBoard)
+                self.Fold.clicked.connect(self.updateMoney)
+
+                self.betLine = QLineEdit(self)
+                self.betLine.setFixedWidth(200)
+
+                self.bet = QPushButton("Bet",self)
+                self.bet.setFixedWidth(200)
+                self.bet.clicked.connect(lambda: self.game.bet(OtherPlayer,int(self.betLine.text())))
+                self.bet.clicked.connect(self.updateMoney)
+                self.bet.clicked.connect(lambda: self.Buttons(self.action.append("Bet"),player,OtherPlayer))
+
+                self.allIn = QPushButton("All in",self)
+                self.allIn.setFixedWidth(200)
+                self.allIn.clicked.connect(lambda: self.game.Allin(OtherPlayer))
+                self.allIn.clicked.connect(self.updateMoney)
+                self.allIn.clicked.connect(lambda: self.Buttons(self.action.append("All in"),player,OtherPlayer))
+                
+                self.vbox.addWidget(self.See)
+                self.vbox.addWidget(self.Check)
+                self.vbox.addWidget(self.Fold)
+                self.vbox.addWidget(self.bet)
+                self.vbox.addWidget(self.betLine)
+                self.vbox.addWidget(self.allIn)
+            
+            elif self.action[-1] == "Deal":
+                self.vbox.removeWidget(self.Deal1)
+                self.Deal1.deleteLater()
+                self.vbox.removeWidget(self.See)
+                self.See.deleteLater()
+                self.vbox.removeWidget(self.Fold)
+                self.Fold.deleteLater()
+                self.vbox.removeWidget(self.bet)
+                self.vbox.removeWidget(self.betLine)
+                self.bet.deleteLater()
+                self.betLine.deleteLater()
+                self.vbox.removeWidget(self.allIn)
+                self.allIn.deleteLater()
+
+                self.See = QPushButton("Look at your cards",self)
+                self.See.setFixedWidth(200)
+                self.See.clicked.connect(lambda: self.seeCards(OtherPlayer))
+    
+                self.Check = QPushButton("Check",self)
+                self.Check.setFixedWidth(200)
+                self.Check.clicked.connect(lambda: self.game.check(OtherPlayer))
+                self.Check.clicked.connect(self.updateMoney)
+                self.Check.clicked.connect(lambda: self.Buttons(self.action.append("Check"),player,OtherPlayer))
+
+                self.Fold = QPushButton("Fold",self)
+                self.Fold.setFixedWidth(200)
+                self.Fold.clicked.connect(lambda: self.game.fold(OtherPlayer))
+                self.Fold.clicked.connect(lambda: self.game.roundOver(player,OtherPlayer))
+                self.Fold.clicked.connect(self.resetBoard)
+                self.Fold.clicked.connect(self.updateMoney)
+
+                self.betLine = QLineEdit(self)
+                self.betLine.setFixedWidth(200)
+
+                self.bet = QPushButton("Bet",self)
+                self.bet.setFixedWidth(200)
+                self.bet.clicked.connect(lambda: self.game.bet(OtherPlayer,int(self.betLine.text())))
+                self.bet.clicked.connect(self.updateMoney)
+                self.bet.clicked.connect(lambda: self.Buttons(self.action.append("Bet"),player,OtherPlayer))
+
+                self.allIn = QPushButton("All in",self)
+                self.allIn.setFixedWidth(200)
+                self.allIn.clicked.connect(lambda: self.game.Allin(OtherPlayer))
+                self.allIn.clicked.connect(self.updateMoney)
+                self.allIn.clicked.connect(lambda: self.Buttons(self.action.append("All in"),player,OtherPlayer))
+                
+                self.vbox.addWidget(self.See)
+                self.vbox.addWidget(self.Check)
+                self.vbox.addWidget(self.Fold)
+                self.vbox.addWidget(self.bet)
+                self.vbox.addWidget(self.betLine)
+                self.vbox.addWidget(self.allIn)
 
     def updateMoney(self):
         """Re-prints the QLabels in order to display current pot and 
