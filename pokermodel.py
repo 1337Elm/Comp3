@@ -165,16 +165,19 @@ class Game(object):
 
         :return: True
         """
-        if ammount >= OtherPlayer.LastBet:
-            player.Money = player.Money - ammount
-            player.LastBet += ammount
-            self.Pot += ammount
-            print(f"{player.name} has bet ${ammount}")
-            self.Turn += 1
-            return True
+        if ammount < player.Money:
+            if ammount >= OtherPlayer.LastBet:
+                player.Money = player.Money - ammount
+                player.LastBet += ammount
+                self.Pot += ammount
+                print(f"{player.name} has bet ${ammount}")
+                self.Turn += 1
+                return True
+            else:
+                print("You need to bet a larger ammount!")
+                return False
         else:
-            print("You need to bet a larger ammount!")
-            return False
+            print("You don't have enough money, go all in to continue the round!")
     
     def Allin(self,player: object):
         """Updates the pot and players money when doing an all in
