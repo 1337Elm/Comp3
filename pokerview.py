@@ -201,6 +201,7 @@ class Window(QGraphicsView):
             self.Fold.clicked.connect(lambda: self.game.roundOver(OtherPlayer,player))
             self.Fold.clicked.connect(self.resetBoard)
             self.Fold.clicked.connect(self.updateMoney)
+            self.Fold.clicked.connect(self.playAnotherRound)
 
             self.betLine = QLineEdit(self)
             self.betLine.setFixedWidth(200)
@@ -270,6 +271,7 @@ class Window(QGraphicsView):
                 self.Fold.clicked.connect(lambda: self.game.roundOver(OtherPlayer,player))
                 self.Fold.clicked.connect(self.resetBoard)
                 self.Fold.clicked.connect(self.updateMoney)
+                self.Fold.clicked.connect(self.playAnotherRound)
 
                 self.betLine = QLineEdit(self)
                 self.betLine.setFixedWidth(200)
@@ -337,6 +339,7 @@ class Window(QGraphicsView):
                 self.Fold.clicked.connect(lambda: self.game.roundOver(OtherPlayer,player))
                 self.Fold.clicked.connect(self.resetBoard)
                 self.Fold.clicked.connect(self.updateMoney)
+                self.Fold.clicked.connect(self.playAnotherRound)
 
                 self.betLine = QLineEdit(self)
                 self.betLine.setFixedWidth(200)
@@ -388,6 +391,7 @@ class Window(QGraphicsView):
                 self.Fold.clicked.connect(lambda: self.game.roundOver(OtherPlayer,player))
                 self.Fold.clicked.connect(self.resetBoard)
                 self.Fold.clicked.connect(self.updateMoney)
+                self.Fold.clicked.connect(self.playAnotherRound)
 
                 self.betLine = QLineEdit(self)
                 self.betLine.setFixedWidth(200)
@@ -439,6 +443,7 @@ class Window(QGraphicsView):
                 self.Fold.clicked.connect(lambda: self.game.roundOver(OtherPlayer,player))
                 self.Fold.clicked.connect(self.resetBoard)
                 self.Fold.clicked.connect(self.updateMoney)
+                self.Fold.clicked.connect(self.playAnotherRound)
 
                 self.allIn = QPushButton("All in",self)
                 self.allIn.setFixedWidth(200)
@@ -514,6 +519,7 @@ class Window(QGraphicsView):
                 self.Fold.clicked.connect(lambda: self.game.roundOver(OtherPlayer,player))
                 self.Fold.clicked.connect(self.resetBoard)
                 self.Fold.clicked.connect(self.updateMoney)
+                self.Fold.clicked.connect(self.playAnotherRound)
 
                 self.betLine = QLineEdit(self)
                 self.betLine.setFixedWidth(200)
@@ -567,6 +573,7 @@ class Window(QGraphicsView):
                 self.Fold.clicked.connect(lambda: self.game.roundOver(player,OtherPlayer))
                 self.Fold.clicked.connect(self.resetBoard)
                 self.Fold.clicked.connect(self.updateMoney)
+                self.Fold.clicked.connect(self.playAnotherRound)
 
                 self.betLine = QLineEdit(self)
                 self.betLine.setFixedWidth(200)
@@ -618,6 +625,7 @@ class Window(QGraphicsView):
                 self.Fold.clicked.connect(lambda: self.game.roundOver(player,OtherPlayer))
                 self.Fold.clicked.connect(self.resetBoard)
                 self.Fold.clicked.connect(self.updateMoney)
+                self.Fold.clicked.connect(self.playAnotherRound)
 
                 self.allIn = QPushButton("All in",self)
                 self.allIn.setFixedWidth(200)
@@ -659,6 +667,7 @@ class Window(QGraphicsView):
                 self.Fold.clicked.connect(lambda: self.game.roundOver(player,OtherPlayer))
                 self.Fold.clicked.connect(self.resetBoard)
                 self.Fold.clicked.connect(self.updateMoney)
+                self.Fold.clicked.connect(self.playAnotherRound)
 
                 self.betLine = QLineEdit(self)
                 self.betLine.setFixedWidth(200)
@@ -712,6 +721,7 @@ class Window(QGraphicsView):
                 self.Fold.clicked.connect(lambda: self.game.roundOver(player,OtherPlayer))
                 self.Fold.clicked.connect(self.resetBoard)
                 self.Fold.clicked.connect(self.updateMoney)
+                self.Fold.clicked.connect(self.playAnotherRound)
 
                 self.betLine = QLineEdit(self)
                 self.betLine.setFixedWidth(200)
