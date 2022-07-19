@@ -40,7 +40,15 @@ class Game(object):
         self.Pot = 0
         self.roundCounter = 0
         self.Turn = 0
+    
 
+    def retrieveRoles(self):
+        """Sets the roles of the players according to ammount
+        of rounds played
+        
+        :param self: game object
+        :type self: object
+        """
         if self.roundCounter % 2 == 0:
             self.player1.Role = "Dealer"
             self.player2.Role = "Big blind"

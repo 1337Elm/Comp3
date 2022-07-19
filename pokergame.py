@@ -1,5 +1,5 @@
 from pokermodel import *
-from pokerViewTry2 import *
+from pokerview import *
 import sys
 
 def main():
