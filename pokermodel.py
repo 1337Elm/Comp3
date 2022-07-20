@@ -104,15 +104,12 @@ class Game(object):
 
         if ph1 > ph2:
             print(f"The winner is {self.player1.name} with {ph1}")
+            player1.Money += self.Pot
             return self.player1
         elif ph2 > ph1:
             print(f"The winner is {self.player2.name} with {ph2}")
+            player2.Money += self.Pot
             return self.player2
-        
-        if self.player1.Money == 0:
-            print(f"Game over {self.player2.name} wins!")
-        elif self.player2.Money == 0:
-            print(f"Game over {self.player1.name} wins!")
 
     def BoardCards(self):
         """Returns the cards on the board for the game
@@ -173,7 +170,7 @@ class Game(object):
 
         :return: True
         """
-        if ammount < player.Money:
+        if ammount <= player.Money:
             if ammount >= OtherPlayer.LastBet:
                 player.Money = player.Money - ammount
                 player.LastBet += ammount
@@ -199,6 +196,7 @@ class Game(object):
         :return: True
         """
         self.Pot = player.Money
+        player.LastBet = player.Money
         player.Money = 0
         print(f"{player.name} has gone all in!")
         self.Turn += 1
